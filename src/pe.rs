@@ -46,6 +46,43 @@ pub struct DosHeader {
     pub e_lfanew: u32, // PE ヘッダへのオフセット
 }
 
+pub struct CoffHeader {
+    pub machine: u16,
+    pub number_of_sections: u16,
+    pub time_date_stamp: u32,
+    pub pointer_to_symbol_table: u32,
+    pub number_of_symbols: u32,
+    pub size_of_optional_header: u16,
+    pub characteristics: u16,
+}
+
+pub const MACHINES: &[(u16, &str)] = &[
+    (0x0000, "IMAGE_FILE_MACHINE_UNKNOWN"),
+    (0x014C, "IMAGE_FILE_MACHINE_I386"),
+    (0x0200, "IMAGE_FILE_MACHINE_IA64"),
+    (0x8664, "IMAGE_FILE_MACHINE_AMD64"),
+    (0xAA64, "IMAGE_FILE_MACHINE_ARM64"),
+    (0x01C4, "IMAGE_FILE_MACHINE_ARMNT"),
+];
+
+pub const CHARACTERISTICS_FLAGS: &[(u16, &str)] = &[
+    (0x0001, "IMAGE_FILE_RELOCS_STRIPPED"),
+    (0x0002, "IMAGE_FILE_EXECUTABLE_IMAGE"),
+    (0x0004, "IMAGE_FILE_LINE_NUMS_STRIPPED"),
+    (0x0008, "IMAGE_FILE_LOCAL_SYMS_STRIPPED"),
+    (0x0010, "IMAGE_FILE_AGGRESIVE_WS_TRIM"),
+    (0x0020, "IMAGE_FILE_LARGE_ADDRESS_AWARE"),
+    (0x0080, "IMAGE_FILE_BYTES_REVERSED_LO"),
+    (0x0100, "IMAGE_FILE_32BIT_MACHINE"),
+    (0x0200, "IMAGE_FILE_DEBUG_STRIPPED"),
+    (0x0400, "IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP"),
+    (0x0800, "IMAGE_FILE_NET_RUN_FROM_SWAP"),
+    (0x1000, "IMAGE_FILE_SYSTEM"),
+    (0x2000, "IMAGE_FILE_DLL"),
+    (0x4000, "IMAGE_FILE_UP_SYSTEM_ONLY"),
+    (0x8000, "IMAGE_FILE_BYTES_REVERSED_HI"),
+];
+
 fn read_u16(data: &[u8], offset: usize) -> u16 {
     u16::from_le_bytes(data[offset..offset + 2].try_into().unwrap())
 }
@@ -77,6 +114,20 @@ impl PeFile {
         }
 
         Ok(PeFile { data })
+    }
+
+    pub fn coff_header(&self) -> CoffHeader {
+        let d = &self.data;
+        let base = read_u32(d, 0x3C) as usize + 4; // PE\0\0 の直後
+        CoffHeader {
+            machine:                  read_u16(d, base),
+            number_of_sections:       read_u16(d, base + 2),
+            time_date_stamp:          read_u32(d, base + 4),
+            pointer_to_symbol_table:  read_u32(d, base + 8),
+            number_of_symbols:        read_u32(d, base + 12),
+            size_of_optional_header:  read_u16(d, base + 16),
+            characteristics:          read_u16(d, base + 18),
+        }
     }
 
     pub fn dos_header(&self) -> DosHeader {

@@ -95,12 +95,12 @@ fn main() {
         fmt_value(&format!("0x{:04X}", dos.e_ovno))
     );
     {
-        let vals: Vec<String> = dos.e_res.iter().map(|v| format!("0x{:04X}", v)).collect();
-        let joined = vals.join("  ");
-        if dos.e_res.iter().any(|&v| v != 0) {
-            println!("  {:<42} {}", fmt_key("Reserved (e_res):"), joined.yellow());
-        } else {
-            println!("  {:<42} {}", fmt_key("Reserved (e_res):"), fmt_gray(&joined));
+        let anomaly = dos.e_res.iter().any(|&v| v != 0);
+        for (i, &v) in dos.e_res.iter().enumerate() {
+            let key = format!("Reserved (e_res[{}]):", i);
+            let val_str = format!("0x{:04X}", v);
+            let colored_val = if anomaly { val_str.yellow() } else { fmt_gray(&val_str) };
+            println!("  {:<42} {}", fmt_key(&key), colored_val);
         }
     }
     println!(
@@ -114,12 +114,12 @@ fn main() {
         fmt_value(&format!("0x{:04X}", dos.e_oeminfo))
     );
     {
-        let vals: Vec<String> = dos.e_res2.iter().map(|v| format!("0x{:04X}", v)).collect();
-        let joined = vals.join("  ");
-        if dos.e_res2.iter().any(|&v| v != 0) {
-            println!("  {:<42} {}", fmt_key("Reserved (e_res2):"), joined.yellow());
-        } else {
-            println!("  {:<42} {}", fmt_key("Reserved (e_res2):"), fmt_gray(&joined));
+        let anomaly = dos.e_res2.iter().any(|&v| v != 0);
+        for (i, &v) in dos.e_res2.iter().enumerate() {
+            let key = format!("Reserved (e_res2[{}]):", i);
+            let val_str = format!("0x{:04X}", v);
+            let colored_val = if anomaly { val_str.yellow() } else { fmt_gray(&val_str) };
+            println!("  {:<42} {}", fmt_key(&key), colored_val);
         }
     }
     println!(
@@ -127,4 +127,59 @@ fn main() {
         fmt_key("Offset to PE Header (e_lfanew):"),
         fmt_addr(&format!("0x{:08X}", dos.e_lfanew))
     );
+
+    println!();
+
+    // --- Step 5: COFF File Header パース ---
+    let coff = pe.coff_header();
+
+    let machine_name = pe::MACHINES
+        .iter()
+        .find(|&&(v, _)| v == coff.machine)
+        .map(|&(_, name)| name)
+        .unwrap_or("UNKNOWN");
+
+    print_section("COFF File Header");
+    println!(
+        "  {:<36} {}",
+        fmt_key("Machine:"),
+        fmt_value(&format!("{} ({:#06X})", machine_name, coff.machine))
+    );
+    println!(
+        "  {:<36} {}",
+        fmt_key("Number of Sections:"),
+        fmt_value(&format!("{}", coff.number_of_sections))
+    );
+    println!(
+        "  {:<36} {}",
+        fmt_key("TimeDateStamp:"),
+        fmt_value(&format!("{:#010X}", coff.time_date_stamp))
+    );
+    println!(
+        "  {:<36} {}",
+        fmt_key("PointerToSymbolTable:"),
+        fmt_addr(&format!("{:#010X}", coff.pointer_to_symbol_table))
+    );
+    println!(
+        "  {:<36} {}",
+        fmt_key("NumberOfSymbols:"),
+        fmt_value(&format!("{}", coff.number_of_symbols))
+    );
+    println!(
+        "  {:<36} {}",
+        fmt_key("SizeOfOptionalHeader:"),
+        fmt_value(&format!("{:#06X}", coff.size_of_optional_header))
+    );
+    println!(
+        "  {:<36} {}",
+        fmt_key("Characteristics:"),
+        fmt_value(&format!("{:#06X}", coff.characteristics))
+    );
+    for &(flag, name) in pe::CHARACTERISTICS_FLAGS {
+        if coff.characteristics & flag != 0 {
+            println!("    {}  {}", fmt_flag_on("[x]"), fmt_flag_on(name));
+        } else {
+            println!("    {}  {}", fmt_gray("[ ]"), fmt_gray(name));
+        }
+    }
 }
