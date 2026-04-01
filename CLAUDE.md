@@ -97,11 +97,11 @@
 ### 出力例（`-a` 時）
 
 ```
-│ DOS Header
+▌ DOS Header
   Magic:                          MZ
   Offset to PE Header (e_lfanew): 0x00000100
 
-│ COFF File Header
+▌ COFF File Header
   Machine:                        IMAGE_FILE_MACHINE_I386 (0x014C)
   Number of Sections:             4
   Characteristics:                0x0102
@@ -109,18 +109,18 @@
     [x] IMAGE_FILE_32BIT_MACHINE
     [ ] IMAGE_FILE_DLL
 
-│ Section Headers
+▌ Section Headers
   [Nr]  Name     VirtAddr    VirtSize    RawAddr     RawSize     Flags
   [ 0]  .text    0x00001000  0x0000A3C0  0x00000400  0x0000A400  R X
   [ 1]  .rdata   0x0000C000  0x00001234  0x0000A800  0x00001400  R
 
-│ Import Table
+▌ Import Table
   DLL: kernel32.dll
     INT RVA: 0x0000B5C0    IAT RVA: 0x0000C000
     [00]  Hint=0x0001  Name=ExitProcess
     [01]  Hint=0x0123  Name=GetStdHandle
 
-│ Section Entropy
+▌ Section Entropy
   Name      Entropy   Rating
   .text     5.23      [normal]
   .upx0     7.94      [!! HIGH - possibly packed]
