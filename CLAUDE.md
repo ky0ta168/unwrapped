@@ -30,10 +30,10 @@
 
 | # | 完了 | ステップ名 | 実装内容 | 確認内容 |
 |---|------|-----------|---------|---------|
-| 1 | [ ] | プロジェクトセットアップ | `cargo new unwraped` / `colored` クレート追加 / コマンドライン引数受け取り | ファイルパスを受け取って表示する |
-| 2 | [ ] | カラー表示・レイアウト基盤 | 左ボーダー表示関数 / キー・値・アドレス・DLL名の色付け関数 / エントロピー色付け関数 | ダミーデータで全カラーパターンを表示する |
-| 3 | [ ] | PEファイル読み込み・バリデーション | バイト列読み込み / MZ・PEシグネチャ確認 | 有効なPEかどうかをカラー表示する |
-| 4 | [ ] | DOS Header パース | `IMAGE_DOS_HEADER` 構造体定義 / `Magic` / `e_lfanew` パース | DOS Headerの各フィールドをカラー表示 |
+| 1 | [x] | プロジェクトセットアップ | `cargo new unwraped` / `colored` クレート追加 / コマンドライン引数受け取り | ファイルパスを受け取って表示する |
+| 2 | [x] | カラー表示・レイアウト基盤 | 左ボーダー表示関数 / キー・値・アドレス・DLL名の色付け関数 / エントロピー色付け関数 | ダミーデータで全カラーパターンを表示する |
+| 3 | [x] | PEファイル読み込み・バリデーション | バイト列読み込み / MZ・PEシグネチャ確認 | 有効なPEかどうかをカラー表示する |
+| 4 | [x] | DOS Header パース | `IMAGE_DOS_HEADER` 構造体定義 / `Magic` / `e_lfanew` パース | DOS Headerの各フィールドをカラー表示 |
 | 5 | [ ] | COFF File Header パース | `IMAGE_FILE_HEADER` 構造体定義 / Machine / NumberOfSections / Characteristics パース | Machine種別・セクション数・Characteristicsフラグをカラー表示 |
 | 6 | [ ] | Optional Header パース | `IMAGE_OPTIONAL_HEADER32` 構造体定義 / EntryPoint / ImageBase / Subsystem / DllCharacteristics パース | EntryPoint・ImageBase・Subsystem・DllCharacteristicsフラグをカラー表示 |
 | 7 | [ ] | Data Directories パース | 16エントリの RVA / Size パース | 16エントリのRVA・Sizeをカラー表示 |
