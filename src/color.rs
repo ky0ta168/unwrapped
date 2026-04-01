@@ -30,6 +30,18 @@ pub fn fmt_gray(s: &str) -> ColoredString {
     s.bright_black()
 }
 
+/// ファイルオフセット（グレー）
+pub fn fmt_offset(offset: usize) -> ColoredString {
+    format!("[{:#06X}]", offset).bright_black()
+}
+
+/// オフセット付きフィールド1行を出力
+/// key_width: キー列の可視文字幅
+pub fn print_field(offset: usize, key: &str, key_width: usize, value: impl std::fmt::Display) {
+    let padded_key = format!("{:<width$}", key, width = key_width);
+    println!("  {}  {} {}", fmt_offset(offset), padded_key.white(), value);
+}
+
 /// ONフラグ（緑）
 pub fn fmt_flag_on(s: &str) -> ColoredString {
     s.green()
