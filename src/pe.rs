@@ -83,12 +83,79 @@ pub const CHARACTERISTICS_FLAGS: &[(u16, &str)] = &[
     (0x8000, "IMAGE_FILE_BYTES_REVERSED_HI"),
 ];
 
+/// Magic 値による PE 種別
+pub enum OptionalHeaderKind {
+    Pe32,     // 0x010B
+    Pe32Plus, // 0x020B
+}
+
+pub struct OptionalHeader {
+    pub kind: OptionalHeaderKind,
+    pub magic: u16,
+    pub major_linker_version: u8,
+    pub minor_linker_version: u8,
+    pub size_of_code: u32,
+    pub size_of_initialized_data: u32,
+    pub size_of_uninitialized_data: u32,
+    pub address_of_entry_point: u32,
+    pub base_of_code: u32,
+    pub base_of_data: Option<u32>, // PE32 のみ
+    pub image_base: u64,           // PE32=u32, PE32+=u64
+    pub section_alignment: u32,
+    pub file_alignment: u32,
+    pub major_os_version: u16,
+    pub minor_os_version: u16,
+    pub major_image_version: u16,
+    pub minor_image_version: u16,
+    pub major_subsystem_version: u16,
+    pub minor_subsystem_version: u16,
+    pub size_of_image: u32,
+    pub size_of_headers: u32,
+    pub check_sum: u32,
+    pub subsystem: u16,
+    pub dll_characteristics: u16,
+}
+
+pub const SUBSYSTEMS: &[(u16, &str)] = &[
+    (0, "IMAGE_SUBSYSTEM_UNKNOWN"),
+    (1, "IMAGE_SUBSYSTEM_NATIVE"),
+    (2, "IMAGE_SUBSYSTEM_WINDOWS_GUI"),
+    (3, "IMAGE_SUBSYSTEM_WINDOWS_CUI"),
+    (5, "IMAGE_SUBSYSTEM_OS2_CUI"),
+    (7, "IMAGE_SUBSYSTEM_POSIX_CUI"),
+    (9, "IMAGE_SUBSYSTEM_WINDOWS_CE_GUI"),
+    (10, "IMAGE_SUBSYSTEM_EFI_APPLICATION"),
+    (11, "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER"),
+    (12, "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER"),
+    (13, "IMAGE_SUBSYSTEM_EFI_ROM"),
+    (14, "IMAGE_SUBSYSTEM_XBOX"),
+    (16, "IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION"),
+];
+
+pub const DLL_CHARACTERISTICS_FLAGS: &[(u16, &str)] = &[
+    (0x0020, "IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA"),
+    (0x0040, "IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE"),
+    (0x0080, "IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY"),
+    (0x0100, "IMAGE_DLLCHARACTERISTICS_NX_COMPAT"),
+    (0x0200, "IMAGE_DLLCHARACTERISTICS_NO_ISOLATION"),
+    (0x0400, "IMAGE_DLLCHARACTERISTICS_NO_SEH"),
+    (0x0800, "IMAGE_DLLCHARACTERISTICS_NO_BIND"),
+    (0x1000, "IMAGE_DLLCHARACTERISTICS_APPCONTAINER"),
+    (0x2000, "IMAGE_DLLCHARACTERISTICS_WDM_DRIVER"),
+    (0x4000, "IMAGE_DLLCHARACTERISTICS_GUARD_CF"),
+    (0x8000, "IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE"),
+];
+
 fn read_u16(data: &[u8], offset: usize) -> u16 {
     u16::from_le_bytes(data[offset..offset + 2].try_into().unwrap())
 }
 
 fn read_u32(data: &[u8], offset: usize) -> u32 {
     u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap())
+}
+
+fn read_u64(data: &[u8], offset: usize) -> u64 {
+    u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap())
 }
 
 impl PeFile {
@@ -120,13 +187,67 @@ impl PeFile {
         let d = &self.data;
         let base = read_u32(d, 0x3C) as usize + 4; // PE\0\0 の直後
         CoffHeader {
-            machine:                  read_u16(d, base),
-            number_of_sections:       read_u16(d, base + 2),
-            time_date_stamp:          read_u32(d, base + 4),
-            pointer_to_symbol_table:  read_u32(d, base + 8),
-            number_of_symbols:        read_u32(d, base + 12),
-            size_of_optional_header:  read_u16(d, base + 16),
-            characteristics:          read_u16(d, base + 18),
+            machine: read_u16(d, base),
+            number_of_sections: read_u16(d, base + 2),
+            time_date_stamp: read_u32(d, base + 4),
+            pointer_to_symbol_table: read_u32(d, base + 8),
+            number_of_symbols: read_u32(d, base + 12),
+            size_of_optional_header: read_u16(d, base + 16),
+            characteristics: read_u16(d, base + 18),
+        }
+    }
+
+    pub fn optional_header(&self) -> OptionalHeader {
+        let d = &self.data;
+        // Optional Header は COFF Header (20 bytes) の直後
+        let base = read_u32(d, 0x3C) as usize + 4 + 20;
+        let magic = read_u16(d, base);
+
+        let is_pe32plus = magic == 0x020B;
+
+        // PE32 と PE32+ でレイアウトが異なる部分を処理
+        let (base_of_data, image_base, subsystem_off, dll_char_off) = if is_pe32plus {
+            // PE32+: BaseOfData なし、ImageBase が u64 (base+24)
+            (None, read_u64(d, base + 24), base + 68, base + 70)
+        } else {
+            // PE32: BaseOfData あり (base+24)、ImageBase が u32 (base+28)
+            (
+                Some(read_u32(d, base + 24)),
+                read_u32(d, base + 28) as u64,
+                base + 68,
+                base + 70,
+            )
+        };
+
+        OptionalHeader {
+            kind: if is_pe32plus {
+                OptionalHeaderKind::Pe32Plus
+            } else {
+                OptionalHeaderKind::Pe32
+            },
+            magic,
+            major_linker_version: d[base + 2],
+            minor_linker_version: d[base + 3],
+            size_of_code: read_u32(d, base + 4),
+            size_of_initialized_data: read_u32(d, base + 8),
+            size_of_uninitialized_data: read_u32(d, base + 12),
+            address_of_entry_point: read_u32(d, base + 16),
+            base_of_code: read_u32(d, base + 20),
+            base_of_data,
+            image_base,
+            section_alignment: read_u32(d, base + 32),
+            file_alignment: read_u32(d, base + 36),
+            major_os_version: read_u16(d, base + 40),
+            minor_os_version: read_u16(d, base + 42),
+            major_image_version: read_u16(d, base + 44),
+            minor_image_version: read_u16(d, base + 46),
+            major_subsystem_version: read_u16(d, base + 48),
+            minor_subsystem_version: read_u16(d, base + 50),
+            size_of_image: read_u32(d, base + 56),
+            size_of_headers: read_u32(d, base + 60),
+            check_sum: read_u32(d, base + 64),
+            subsystem: read_u16(d, subsystem_off),
+            dll_characteristics: read_u16(d, dll_char_off),
         }
     }
 

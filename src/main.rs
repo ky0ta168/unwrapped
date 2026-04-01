@@ -28,7 +28,11 @@ fn main() {
     let dos = pe.dos_header();
 
     print_section("DOS Header");
-    println!("  {:<42} {}", fmt_key("Magic:"), fmt_addr(&format!("0x{:04X}", dos.e_magic)));
+    println!(
+        "  {:<42} {}",
+        fmt_key("Magic:"),
+        fmt_addr(&format!("0x{:04X}", dos.e_magic))
+    );
     println!(
         "  {:<42} {}",
         fmt_key("Bytes on last page (e_cblp):"),
@@ -99,7 +103,11 @@ fn main() {
         for (i, &v) in dos.e_res.iter().enumerate() {
             let key = format!("Reserved (e_res[{}]):", i);
             let val_str = format!("0x{:04X}", v);
-            let colored_val = if anomaly { val_str.yellow() } else { fmt_gray(&val_str) };
+            let colored_val = if anomaly {
+                val_str.yellow()
+            } else {
+                fmt_gray(&val_str)
+            };
             println!("  {:<42} {}", fmt_key(&key), colored_val);
         }
     }
@@ -118,7 +126,11 @@ fn main() {
         for (i, &v) in dos.e_res2.iter().enumerate() {
             let key = format!("Reserved (e_res2[{}]):", i);
             let val_str = format!("0x{:04X}", v);
-            let colored_val = if anomaly { val_str.yellow() } else { fmt_gray(&val_str) };
+            let colored_val = if anomaly {
+                val_str.yellow()
+            } else {
+                fmt_gray(&val_str)
+            };
             println!("  {:<42} {}", fmt_key(&key), colored_val);
         }
     }
@@ -177,6 +189,141 @@ fn main() {
     );
     for &(flag, name) in pe::CHARACTERISTICS_FLAGS {
         if coff.characteristics & flag != 0 {
+            println!("    {}  {}", fmt_flag_on("[x]"), fmt_flag_on(name));
+        } else {
+            println!("    {}  {}", fmt_gray("[ ]"), fmt_gray(name));
+        }
+    }
+
+    println!();
+
+    // --- Step 6: Optional Header パース ---
+    let opt = pe.optional_header();
+
+    let magic_label = match opt.magic {
+        0x010B => "PE32",
+        0x020B => "PE32+ (64-bit)",
+        0x0107 => "ROM",
+        _ => "Unknown",
+    };
+    let subsystem_name = pe::SUBSYSTEMS
+        .iter()
+        .find(|&&(v, _)| v == opt.subsystem)
+        .map(|&(_, name)| name)
+        .unwrap_or("UNKNOWN");
+
+    print_section("Optional Header");
+    println!(
+        "  {:<40} {}",
+        fmt_key("Magic:"),
+        fmt_value(&format!("{} ({:#06X})", magic_label, opt.magic))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("LinkerVersion:"),
+        fmt_value(&format!(
+            "{}.{}",
+            opt.major_linker_version, opt.minor_linker_version
+        ))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("SizeOfCode:"),
+        fmt_value(&format!("{:#010X}", opt.size_of_code))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("SizeOfInitializedData:"),
+        fmt_value(&format!("{:#010X}", opt.size_of_initialized_data))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("SizeOfUninitializedData:"),
+        fmt_value(&format!("{:#010X}", opt.size_of_uninitialized_data))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("AddressOfEntryPoint:"),
+        fmt_addr(&format!("{:#010X}", opt.address_of_entry_point))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("BaseOfCode:"),
+        fmt_addr(&format!("{:#010X}", opt.base_of_code))
+    );
+    if let Some(bod) = opt.base_of_data {
+        println!(
+            "  {:<40} {}",
+            fmt_key("BaseOfData:"),
+            fmt_addr(&format!("{:#010X}", bod))
+        );
+    }
+    println!(
+        "  {:<40} {}",
+        fmt_key("ImageBase:"),
+        fmt_addr(&format!("{:#018X}", opt.image_base))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("SectionAlignment:"),
+        fmt_value(&format!("{:#010X}", opt.section_alignment))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("FileAlignment:"),
+        fmt_value(&format!("{:#010X}", opt.file_alignment))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("OperatingSystemVersion:"),
+        fmt_value(&format!(
+            "{}.{}",
+            opt.major_os_version, opt.minor_os_version
+        ))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("ImageVersion:"),
+        fmt_value(&format!(
+            "{}.{}",
+            opt.major_image_version, opt.minor_image_version
+        ))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("SubsystemVersion:"),
+        fmt_value(&format!(
+            "{}.{}",
+            opt.major_subsystem_version, opt.minor_subsystem_version
+        ))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("SizeOfImage:"),
+        fmt_value(&format!("{:#010X}", opt.size_of_image))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("SizeOfHeaders:"),
+        fmt_value(&format!("{:#010X}", opt.size_of_headers))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("CheckSum:"),
+        fmt_value(&format!("{:#010X}", opt.check_sum))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("Subsystem:"),
+        fmt_value(&format!("{} ({:#06X})", subsystem_name, opt.subsystem))
+    );
+    println!(
+        "  {:<40} {}",
+        fmt_key("DllCharacteristics:"),
+        fmt_value(&format!("{:#06X}", opt.dll_characteristics))
+    );
+    for &(flag, name) in pe::DLL_CHARACTERISTICS_FLAGS {
+        if opt.dll_characteristics & flag != 0 {
             println!("    {}  {}", fmt_flag_on("[x]"), fmt_flag_on(name));
         } else {
             println!("    {}  {}", fmt_gray("[ ]"), fmt_gray(name));
