@@ -2,20 +2,17 @@ use crate::color::*;
 use crate::pe;
 use colored::Colorize;
 
-const FLAG_INDENT: &str = "       ";
 const KW: usize = 30;
+// print_field のフォーマット: 2(先頭) + 8("[0x0000]") + 1(スペース) = 11
+const FLAG_INDENT: usize = 2 + 8 + 1;
 
 fn print_flags(flags: &[(u16, &str)], value: u16) {
+    let indent = " ".repeat(FLAG_INDENT);
     for &(flag, name) in flags {
         if value & flag != 0 {
-            println!(
-                "{}{}  {}",
-                FLAG_INDENT,
-                fmt_flag_on("[x]"),
-                fmt_flag_on(name)
-            );
+            println!("{}{} {}", indent, fmt_flag_on("[x]"), fmt_flag_on(name));
         } else {
-            println!("{}{}  {}", FLAG_INDENT, fmt_gray("[ ]"), fmt_gray(name));
+            println!("{}{} {}", indent, fmt_gray("[ ]"), fmt_gray(name));
         }
     }
 }

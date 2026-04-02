@@ -39,7 +39,7 @@ pub fn fmt_offset(offset: usize) -> ColoredString {
 /// key_width: キー列の可視文字幅
 pub fn print_field(offset: usize, key: &str, key_width: usize, value: impl std::fmt::Display) {
     let padded_key = format!("{:<width$}", key, width = key_width);
-    println!("  {}  {} {}", fmt_offset(offset), padded_key.white(), value);
+    println!("  {} {} {}", fmt_offset(offset), padded_key.white(), value);
 }
 
 /// ONフラグ（緑）
