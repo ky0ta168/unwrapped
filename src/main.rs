@@ -40,7 +40,7 @@ fn main() {
     println!(r#"                              |_|"#);
     println!();
 
-    println!("{} {}", "[FILE]".white(), file_path.white());
+    println!("{} {}", "[FILE]".bright_yellow(), file_path.white());
 
     let dos = pe.dos_header();
     let e_lfanew = dos.e_lfanew as usize;
