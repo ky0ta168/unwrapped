@@ -16,6 +16,15 @@ pub fn fmt_dim(s: &str) -> ColoredString {
     s.bright_black()
 }
 
+/// シンボル名と生の数値を組み合わせて表示する。例: `PE32 (0x010B)`
+pub fn fmt_symbol(name: &str, raw: u16) -> String {
+    format!(
+        "{} {}",
+        name.yellow(),
+        format!("({:#06X})", raw).bright_black()
+    )
+}
+
 /// フィールド行を1行出力する。
 /// offset: ファイルオフセット（None = 10スペースの空白列）
 /// prefix: ツリープレフィックス文字列（暗グレーで表示）

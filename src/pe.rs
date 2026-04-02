@@ -177,6 +177,17 @@ fn read_u64(data: &[u8], offset: usize) -> u64 {
 }
 
 impl PeFile {
+    /// PE署名のファイルオフセット（e_lfanew の値）
+    fn pe_offset(&self) -> usize {
+        read_u32(&self.data, 0x3C) as usize
+    }
+
+    /// Optional Header の magic 値が PE32+（0x020B）かどうか
+    fn is_pe32plus(&self) -> bool {
+        let opt_base = self.pe_offset() + 4 + 20;
+        read_u16(&self.data, opt_base) == 0x020B
+    }
+
     pub fn open(path: &Path) -> Result<Self, PeError> {
         let data = fs::read(path).map_err(PeError::Io)?;
 
@@ -188,7 +199,7 @@ impl PeFile {
             return Err(PeError::InvalidMz);
         }
 
-        let e_lfanew = read_u32(&data, 0x3C) as usize;
+        let e_lfanew = read_u32(&data, 0x3C) as usize; // open() 内なので self がまだない
 
         if data.len() < e_lfanew + 4 {
             return Err(PeError::InvalidPe);
@@ -203,7 +214,7 @@ impl PeFile {
 
     pub fn coff_header(&self) -> CoffHeader {
         let d = &self.data;
-        let base = read_u32(d, 0x3C) as usize + 4; // PE\0\0 の直後
+        let base = self.pe_offset() + 4; // PE\0\0 の直後
         CoffHeader {
             machine: read_u16(d, base),
             number_of_sections: read_u16(d, base + 2),
@@ -218,10 +229,9 @@ impl PeFile {
     pub fn optional_header(&self) -> OptionalHeader {
         let d = &self.data;
         // Optional Header は COFF Header (20 bytes) の直後
-        let base = read_u32(d, 0x3C) as usize + 4 + 20;
+        let base = self.pe_offset() + 4 + 20;
         let magic = read_u16(d, base);
-
-        let is_pe32plus = magic == 0x020B;
+        let is_pe32plus = self.is_pe32plus();
 
         // PE32 と PE32+ でレイアウトが異なる部分を処理
         let (base_of_data, image_base, subsystem_off, dll_char_off) = if is_pe32plus {
@@ -267,14 +277,12 @@ impl PeFile {
 
     pub fn data_directories(&self) -> (usize, Vec<DataDirectory>) {
         let d = &self.data;
-        let opt_base = read_u32(d, 0x3C) as usize + 4 + 20;
-        let magic = read_u16(d, opt_base);
-        let is_pe32plus = magic == 0x020B;
+        let opt_base = self.pe_offset() + 4 + 20;
 
         // Data Directory の開始オフセット
         // PE32:  opt_base + 96
         // PE32+: opt_base + 112
-        let dd_base = if is_pe32plus {
+        let dd_base = if self.is_pe32plus() {
             opt_base + 112
         } else {
             opt_base + 96

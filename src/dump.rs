@@ -276,11 +276,7 @@ pub fn dump_coff_header(coff: &pe::CoffHeader, base: usize, all_flags: bool) {
         NL_F,
         "Machine",
         KW,
-        format!(
-            "{} {}",
-            fmt_identifier(machine_name),
-            fmt_dim(&format!("({:#06X})", coff.machine))
-        ),
+        fmt_symbol(machine_name, coff.machine),
     );
     print_field(
         Some(base + 2),
@@ -364,11 +360,7 @@ pub fn dump_optional_header(
         LL_F,
         "Magic",
         KW,
-        format!(
-            "{} {}",
-            fmt_identifier(magic_label),
-            fmt_dim(&format!("({:#06X})", opt.magic))
-        ),
+        fmt_symbol(magic_label, opt.magic),
     );
     print_field(
         Some(base + 2),
@@ -526,11 +518,7 @@ pub fn dump_optional_header(
         LL_F,
         "Subsystem",
         KW,
-        format!(
-            "{} {}",
-            fmt_identifier(subsystem_name),
-            fmt_dim(&format!("({:#06X})", opt.subsystem))
-        ),
+        fmt_symbol(subsystem_name, opt.subsystem),
     );
 
     // DllCharacteristics は末尾フィールドではない（Data Directories が後続）
