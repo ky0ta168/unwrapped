@@ -83,14 +83,7 @@ pub const CHARACTERISTICS_FLAGS: &[(u16, &str)] = &[
     (0x8000, "IMAGE_FILE_BYTES_REVERSED_HI"),
 ];
 
-/// Magic 値による PE 種別
-pub enum OptionalHeaderKind {
-    Pe32,     // 0x010B
-    Pe32Plus, // 0x020B
-}
-
 pub struct OptionalHeader {
-    pub kind: OptionalHeaderKind,
     pub magic: u16,
     pub major_linker_version: u8,
     pub minor_linker_version: u8,
@@ -145,6 +138,30 @@ pub const DLL_CHARACTERISTICS_FLAGS: &[(u16, &str)] = &[
     (0x2000, "IMAGE_DLLCHARACTERISTICS_WDM_DRIVER"),
     (0x4000, "IMAGE_DLLCHARACTERISTICS_GUARD_CF"),
     (0x8000, "IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE"),
+];
+
+pub struct DataDirectory {
+    pub virtual_address: u32,
+    pub size: u32,
+}
+
+pub const DATA_DIRECTORY_NAMES: &[&str] = &[
+    "Export Table",
+    "Import Table",
+    "Resource Table",
+    "Exception Table",
+    "Certificate Table",
+    "Base Relocation Table",
+    "Debug",
+    "Architecture",
+    "Global Ptr",
+    "TLS Table",
+    "Load Config Table",
+    "Bound Import",
+    "IAT",
+    "Delay Import Descriptor",
+    "CLR Runtime Header",
+    "Reserved",
 ];
 
 fn read_u16(data: &[u8], offset: usize) -> u16 {
@@ -221,11 +238,6 @@ impl PeFile {
         };
 
         OptionalHeader {
-            kind: if is_pe32plus {
-                OptionalHeaderKind::Pe32Plus
-            } else {
-                OptionalHeaderKind::Pe32
-            },
             magic,
             major_linker_version: d[base + 2],
             minor_linker_version: d[base + 3],
@@ -251,6 +263,32 @@ impl PeFile {
             subsystem: read_u16(d, subsystem_off),
             dll_characteristics: read_u16(d, dll_char_off),
         }
+    }
+
+    pub fn data_directories(&self) -> (usize, Vec<DataDirectory>) {
+        let d = &self.data;
+        let opt_base = read_u32(d, 0x3C) as usize + 4 + 20;
+        let magic = read_u16(d, opt_base);
+        let is_pe32plus = magic == 0x020B;
+
+        // Data Directory の開始オフセット
+        // PE32:  opt_base + 96
+        // PE32+: opt_base + 112
+        let dd_base = if is_pe32plus {
+            opt_base + 112
+        } else {
+            opt_base + 96
+        };
+
+        let mut dirs = Vec::new();
+        for i in 0..16 {
+            let off = dd_base + i * 8;
+            dirs.push(DataDirectory {
+                virtual_address: read_u32(d, off),
+                size: read_u32(d, off + 4),
+            });
+        }
+        (dd_base, dirs)
     }
 
     pub fn dos_header(&self) -> DosHeader {

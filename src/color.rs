@@ -1,59 +1,60 @@
 use colored::*;
 
-/// 左ボーダー付きセクションヘッダを表示
-pub fn print_section(title: &str) {
-    println!("{} {}", "▌".blue(), title.blue().bold());
-}
-
-/// キー名（白薄）
-pub fn fmt_key(s: &str) -> ColoredString {
-    s.white()
-}
-
-/// 値・数値（シアン）
 pub fn fmt_value(s: &str) -> ColoredString {
     s.cyan()
 }
 
-/// アドレス・RVA（シアン）
 pub fn fmt_addr(s: &str) -> ColoredString {
     s.cyan()
 }
 
-/// DLL名（黄）
-pub fn fmt_dll(s: &str) -> ColoredString {
+pub fn fmt_identifier(s: &str) -> ColoredString {
     s.yellow()
 }
 
-/// インデックス・OFFフラグ（グレー）
-pub fn fmt_gray(s: &str) -> ColoredString {
+pub fn fmt_dim(s: &str) -> ColoredString {
     s.bright_black()
 }
 
-/// ファイルオフセット（グレー）
-pub fn fmt_offset(offset: usize) -> ColoredString {
-    format!("[{:#06X}]", offset).bright_black()
+/// フィールド行を1行出力する。
+/// offset: ファイルオフセット（None = 10スペースの空白列）
+/// prefix: ツリープレフィックス文字列（暗グレーで表示）
+/// key: フィールド名（白、kw幅にパディング）
+/// kw: キー列の幅
+/// value: 表示する値
+pub fn print_field(
+    offset: Option<usize>,
+    prefix: &str,
+    key: &str,
+    kw: usize,
+    value: impl std::fmt::Display,
+) {
+    let off = match offset {
+        Some(o) => format!("[{:#06X}]  ", o).bright_black().to_string(),
+        None => "          ".to_string(),
+    };
+    let padded = format!("{:<kw$}", key, kw = kw);
+    println!(
+        "{}{}{} {}",
+        off,
+        prefix.bright_black(),
+        padded.white(),
+        value
+    );
 }
 
-/// オフセット付きフィールド1行を出力
-/// key_width: キー列の可視文字幅
-pub fn print_field(offset: usize, key: &str, key_width: usize, value: impl std::fmt::Display) {
-    let padded_key = format!("{:<width$}", key, width = key_width);
-    println!("  {} {} {}", fmt_offset(offset), padded_key.white(), value);
+/// セクションヘッダ行を出力する（オフセット列は常に空白）。
+/// connector: "├─ " または "└─ "
+/// name: セクション名（青・太字）
+pub fn print_section_header(connector: &str, name: &str) {
+    println!(
+        "          {}{}",
+        connector.bright_black(),
+        name.blue().bold()
+    );
 }
 
-/// ONフラグ（緑）
-pub fn fmt_flag_on(s: &str) -> ColoredString {
-    s.green()
-}
-
-/// エントロピー判定の色付き文字列を返す
-pub fn fmt_entropy(entropy: f64) -> ColoredString {
-    if entropy < 6.0 {
-        "[normal]".green()
-    } else if entropy < 7.0 {
-        "[^ elevated]".yellow()
-    } else {
-        "[!! HIGH - possibly packed]".red()
-    }
+/// ツリー継続を示す空白セパレータ行を出力する。
+pub fn print_separator(tree_chars: &str) {
+    println!("          {}", tree_chars.bright_black());
 }
