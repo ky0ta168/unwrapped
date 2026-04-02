@@ -35,7 +35,7 @@
 | 3 | [x] | PEファイル読み込み・バリデーション | バイト列読み込み / MZ・PEシグネチャ確認 | 有効なPEかどうかをカラー表示する |
 | 4 | [x] | DOS Header パース | `IMAGE_DOS_HEADER` 構造体定義 / `Magic` / `e_lfanew` パース | DOS Headerの各フィールドをカラー表示 |
 | 5 | [x] | COFF File Header パース | `IMAGE_FILE_HEADER` 構造体定義 / Machine / NumberOfSections / Characteristics パース | Machine種別・セクション数・Characteristicsフラグをカラー表示 |
-| 6 | [ ] | Optional Header パース | `IMAGE_OPTIONAL_HEADER32` 構造体定義 / EntryPoint / ImageBase / Subsystem / DllCharacteristics パース | EntryPoint・ImageBase・Subsystem・DllCharacteristicsフラグをカラー表示 |
+| 6 | [x] | Optional Header パース | `IMAGE_OPTIONAL_HEADER32` 構造体定義 / EntryPoint / ImageBase / Subsystem / DllCharacteristics パース | EntryPoint・ImageBase・Subsystem・DllCharacteristicsフラグをカラー表示 |
 | 7 | [ ] | Data Directories パース | 16エントリの RVA / Size パース | 16エントリのRVA・Sizeをカラー表示 |
 | 8 | [ ] | Section Headers パース | `IMAGE_SECTION_HEADER` 構造体定義 / Name / VirtualAddress / VirtualSize / Characteristics パース | セクション名・アドレス・サイズ・フラグをカラー表示 |
 | 9 | [ ] | Import Table パース | DLL名 / INT / IAT / 関数名 / Hint 取得 | DLL名・関数名・HintをカラーでDLLごとにグループ表示 |
