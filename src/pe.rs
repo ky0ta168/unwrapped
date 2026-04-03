@@ -439,15 +439,14 @@ impl PeFile {
                             });
                         } else if let Some(ibn_off) =
                             rva_to_file_offset((entry & 0xFFFF_FFFF) as u32, &sections)
+                            && ibn_off + 2 <= d.len()
                         {
-                            if ibn_off + 2 <= d.len() {
-                                functions.push(ImportFunction {
-                                    thunk_offset: thunk_off,
-                                    hint: Some(read_u16(d, ibn_off)),
-                                    name: Some(read_cstring(d, ibn_off + 2)),
-                                    ordinal: None,
-                                });
-                            }
+                            functions.push(ImportFunction {
+                                thunk_offset: thunk_off,
+                                hint: Some(read_u16(d, ibn_off)),
+                                name: Some(read_cstring(d, ibn_off + 2)),
+                                ordinal: None,
+                            });
                         }
                     } else {
                         let entry = read_u32(d, thunk_off);
@@ -462,15 +461,15 @@ impl PeFile {
                                 name: None,
                                 ordinal: Some((entry & 0xFFFF) as u16),
                             });
-                        } else if let Some(ibn_off) = rva_to_file_offset(entry, &sections) {
-                            if ibn_off + 2 <= d.len() {
-                                functions.push(ImportFunction {
-                                    thunk_offset: thunk_off,
-                                    hint: Some(read_u16(d, ibn_off)),
-                                    name: Some(read_cstring(d, ibn_off + 2)),
-                                    ordinal: None,
-                                });
-                            }
+                        } else if let Some(ibn_off) = rva_to_file_offset(entry, &sections)
+                            && ibn_off + 2 <= d.len()
+                        {
+                            functions.push(ImportFunction {
+                                thunk_offset: thunk_off,
+                                hint: Some(read_u16(d, ibn_off)),
+                                name: Some(read_cstring(d, ibn_off + 2)),
+                                ordinal: None,
+                            });
                         }
                     }
                     j += 1;
