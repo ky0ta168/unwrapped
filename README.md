@@ -1,4 +1,4 @@
-# unwraped
+# Unwraped
 
 PE ファイル（`.exe` / `.dll`）の構造をターミナルにダンプするツール。
 `dumpbin` / `readelf` の簡易自作版。
