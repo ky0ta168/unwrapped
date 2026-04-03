@@ -37,7 +37,7 @@ pub fn fmt_offset(o: usize) -> String {
     format!("[{:#010X}]  ", o).bright_black().to_string()
 }
 
-/// RVA:/Size: などのラベル（水色・dim）
+/// RVA:/Size: などのラベル（水色）
 pub fn fmt_label(s: &str) -> ColoredString {
     s.cyan()
 }
@@ -46,8 +46,8 @@ pub fn fmt_label(s: &str) -> ColoredString {
 pub fn fmt_flag_on(name: &str, mask: u32) -> String {
     format!(
         "{} {} {}",
-        "[x]".green(),
-        name.green(),
+        "[x]".bright_green(),
+        name.bright_green(),
         format!("(0x{:08X})", mask).bright_black()
     )
 }

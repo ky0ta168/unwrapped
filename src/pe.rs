@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
@@ -197,6 +198,22 @@ pub const SECTION_CHARACTERISTICS_FLAGS: &[(u32, &str)] = &[
     (0x80000000, "IMAGE_SCN_MEM_WRITE"),
 ];
 
+pub struct ExportFunction {
+    pub eat_offset: usize,    // EAT エントリのファイルオフセット
+    pub ordinal: u32,         // オーディナル値 (base + index)
+    pub name: Option<String>, // 名前付きエクスポートの場合
+    pub rva: u32,             // 関数の RVA
+}
+
+pub struct ExportTable {
+    #[allow(dead_code)]
+    pub offset: usize,
+    pub dll_name: String,
+    #[allow(dead_code)]
+    pub base: u32,
+    pub functions: Vec<ExportFunction>,
+}
+
 pub struct ImportFunction {
     pub thunk_offset: usize,
     pub hint: Option<u16>,
@@ -370,6 +387,84 @@ impl PeFile {
             });
         }
         (dd_base, dirs)
+    }
+
+    pub fn export_table(&self) -> Option<ExportTable> {
+        let (_, dirs) = self.data_directories();
+        let export_dir = &dirs[0]; // Data Directory[0] = Export Table
+        if export_dir.virtual_address == 0 {
+            return None;
+        }
+
+        let (_, sections) = self.section_headers();
+        let d = &self.data;
+
+        let dir_offset = rva_to_file_offset(export_dir.virtual_address, &sections)?;
+        if dir_offset + 40 > d.len() {
+            return None;
+        }
+
+        // IMAGE_EXPORT_DIRECTORY のフィールド
+        let name_rva = read_u32(d, dir_offset + 12);
+        let base = read_u32(d, dir_offset + 16);
+        let number_of_functions = read_u32(d, dir_offset + 20);
+        let number_of_names = read_u32(d, dir_offset + 24);
+        let eat_rva = read_u32(d, dir_offset + 28); // AddressOfFunctions
+        let name_ptr_rva = read_u32(d, dir_offset + 32); // AddressOfNames
+        let name_ord_rva = read_u32(d, dir_offset + 36); // AddressOfNameOrdinals
+
+        let dll_name = rva_to_file_offset(name_rva, &sections)
+            .map(|o| read_cstring(d, o))
+            .unwrap_or_default();
+
+        let eat_base = rva_to_file_offset(eat_rva, &sections)?;
+
+        // EAT インデックス → 関数名 のマップを構築
+        let mut name_map: HashMap<usize, String> = HashMap::new();
+        if number_of_names > 0
+            && let (Some(name_ptr_base), Some(name_ord_base)) = (
+                rva_to_file_offset(name_ptr_rva, &sections),
+                rva_to_file_offset(name_ord_rva, &sections),
+            )
+        {
+            for i in 0..number_of_names as usize {
+                let name_ptr = read_u32(d, name_ptr_base + i * 4);
+                let name_ord = read_u16(d, name_ord_base + i * 2) as usize;
+                if let Some(name_off) = rva_to_file_offset(name_ptr, &sections) {
+                    name_map.insert(name_ord, read_cstring(d, name_off));
+                }
+            }
+        }
+
+        // EAT を走査してエクスポート関数を収集
+        let mut functions = Vec::new();
+        for idx in 0..number_of_functions as usize {
+            let eat_offset = eat_base + idx * 4;
+            if eat_offset + 4 > d.len() {
+                break;
+            }
+            let rva = read_u32(d, eat_offset);
+            if rva == 0 {
+                continue; // 未使用エントリ
+            }
+            functions.push(ExportFunction {
+                eat_offset,
+                ordinal: base + idx as u32,
+                name: name_map.remove(&idx),
+                rva,
+            });
+        }
+
+        if functions.is_empty() && dll_name.is_empty() {
+            None
+        } else {
+            Some(ExportTable {
+                offset: dir_offset,
+                dll_name,
+                base,
+                functions,
+            })
+        }
     }
 
     pub fn import_table(&self) -> Option<Vec<ImportDescriptor>> {

@@ -1,7 +1,7 @@
 use crate::color::*;
 use crate::pe;
 
-const KW: usize = 30;
+const KW: usize = 32;
 
 // ── ツリープレフィックス定数（非末尾セクション用）────────────────────────────
 // NL = 非末尾セクション（DOS Header, COFF: 親パイプ "│  " が継続）
@@ -16,6 +16,14 @@ const NL_FL: &str = "│  └─ ";
 const NL_FLG: &str = "│     ├─ ";
 const NL_FLGL: &str = "│     └─ ";
 const NL_FLGA: &str = "│        ";
+
+/// 数値の桁数を取得する。
+fn digit_count(n: usize) -> usize {
+    if n == 0 {
+        return 1;
+    }
+    (n.ilog10() + 1) as usize
+}
 
 /// フィールド配下のフラグを出力する。
 /// all_flags: true なら全フラグ表示、false ならセット済みフラグのみ + "(N flags not set)" 注釈。
@@ -551,7 +559,7 @@ fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory], pc: &str) {
 
     // Optional Header の最後の子として "Data Directories" ヘッダを出力
     println!(
-        "              {}{}  {}",
+        "              {}{} {}",
         fmt_tree(&format!("{}└─ ", pc)),
         fmt_section("Data Directories"),
         fmt_dim(&format!("({} active, {} empty)", active, empty))
@@ -613,7 +621,7 @@ pub fn dump_section_headers(
 
     let n = sections.len();
     println!(
-        "              {}{}  {}",
+        "              {}{} {}",
         fmt_tree(connector),
         fmt_section("Section Headers"),
         fmt_dim(&format!("({} sections)", n))
@@ -660,35 +668,35 @@ pub fn dump_section_headers(
             Some(sec_base + 8),
             &f_pfx,
             "VirtualSize",
-            KW,
+            KW - 3,
             fmt_value(&format!("{:#010X}", sec.virtual_size)),
         );
         print_field(
             Some(sec_base + 12),
             &f_pfx,
             "VirtualAddress",
-            KW,
+            KW - 3,
             fmt_addr(&format!("{:#010X}", sec.virtual_address)),
         );
         print_field(
             Some(sec_base + 16),
             &f_pfx,
             "SizeOfRawData",
-            KW,
+            KW - 3,
             fmt_value(&format!("{:#010X}", sec.size_of_raw_data)),
         );
         print_field(
             Some(sec_base + 20),
             &f_pfx,
             "PointerToRawData",
-            KW,
+            KW - 3,
             fmt_addr(&format!("{:#010X}", sec.pointer_to_raw_data)),
         );
         print_field(
             Some(sec_base + 36),
             &fl_pfx,
             "Characteristics",
-            KW,
+            KW - 3,
             fmt_value(&format!("{:#010X}", sec.characteristics)),
         );
         print_flags(
@@ -702,10 +710,48 @@ pub fn dump_section_headers(
     }
 }
 
+pub fn dump_export_table(exp: &pe::ExportTable, is_last: bool) {
+    let connector = if is_last { "└─ " } else { "├─ " };
+    let pc = if is_last { "   " } else { "│  " };
+
+    let n = exp.functions.len();
+    println!(
+        "              {}{} {}",
+        fmt_tree(connector),
+        fmt_section("Export Table"),
+        fmt_dim(&format!("{} ({} exports)", exp.dll_name, n))
+    );
+
+    let digit = digit_count(n);
+    for (i, func) in exp.functions.iter().enumerate() {
+        let is_last_fn = i + 1 >= n;
+        let fn_conn = if is_last_fn {
+            format!("{}└─ ", pc)
+        } else {
+            format!("{}├─ ", pc)
+        };
+
+        let name_str = match &func.name {
+            Some(name) => fmt_identifier(name).to_string(),
+            None => fmt_dim("(unnamed)").to_string(),
+        };
+
+        println!(
+            "{}{}{}{} {} {}",
+            fmt_offset(func.eat_offset),
+            fmt_tree(&fn_conn),
+            fmt_dim(&format!("[{:0>width$}] ", func.ordinal, width = digit)),
+            name_str,
+            fmt_label("RVA:"),
+            fmt_addr(&format!("{:#010X}", func.rva))
+        );
+    }
+}
+
 pub fn dump_import_table(descriptors: &[pe::ImportDescriptor]) {
     let n = descriptors.len();
     println!(
-        "              {}{}  {}",
+        "              {}{} {}",
         fmt_tree("└─ "),
         fmt_section("Import Table"),
         fmt_dim(&format!("({} DLLs)", n))
@@ -722,7 +768,7 @@ pub fn dump_import_table(descriptors: &[pe::ImportDescriptor]) {
 
         // DLL ヘッダ行
         println!(
-            "{}{}{}  {}",
+            "{}{}{} {}",
             fmt_offset(desc.offset),
             fmt_tree(dll_conn),
             fmt_identifier(&desc.dll_name),

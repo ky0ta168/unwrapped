@@ -40,12 +40,15 @@ fn main() {
     println!(r#"                              |_|"#);
     println!();
 
-    println!("{} {}", "[FILE]".yellow(), file_path.white());
+    println!("{} {}", "[FILE]".bright_green(), file_path.white());
 
     let dos = pe.dos_header();
     let e_lfanew = dos.e_lfanew as usize;
 
+    let export = pe.export_table();
     let import = pe.import_table();
+    let has_export = export.is_some();
+    let has_import = import.is_some();
 
     dump::dump_dos_header(&dos);
     println!("              {}", fmt_tree("│"));
@@ -65,8 +68,12 @@ fn main() {
     println!("              {}", fmt_tree("│"));
 
     let (sh_base, sections) = pe.section_headers();
-    let has_import = import.is_some();
-    dump::dump_section_headers(sh_base, &sections, all_flags, !has_import);
+    dump::dump_section_headers(sh_base, &sections, all_flags, !has_export && !has_import);
+
+    if let Some(exp) = export {
+        println!("              {}", fmt_tree("│"));
+        dump::dump_export_table(&exp, !has_import);
+    }
 
     if let Some(descriptors) = import {
         println!("              {}", fmt_tree("│"));

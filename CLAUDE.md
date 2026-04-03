@@ -40,7 +40,7 @@
 | 7 | [x] | Data Directories パース | 16エントリの RVA / Size パース | 16エントリのRVA・Sizeをカラー表示 |
 | 8 | [x] | Section Headers パース | `IMAGE_SECTION_HEADER` 構造体定義 / Name / VirtualAddress / VirtualSize / Characteristics パース | セクション名・アドレス・サイズ・フラグをカラー表示 |
 | 9 | [x] | Import Table パース | DLL名 / INT / IAT / 関数名 / Hint 取得 | DLL名・関数名・HintをカラーでDLLごとにグループ表示 |
-| 10 | [ ] | Export Table パース | 関数名 / Ordinal / RVA 取得 | エクスポート関数名・Ordinal・RVAをカラー表示 |
+| 10 | [x] | Export Table パース | 関数名 / Ordinal / RVA 取得 | エクスポート関数名・Ordinal・RVAをカラー表示 |
 | 11 | [ ] | Base Relocations パース | ブロック / エントリ / Type / Offset 取得 | ブロックごとのVirtualAddress・Type・Offsetをカラー表示 |
 | 12 | [ ] | Debug Directory パース | CodeViewのPDBパス / GUID / Age 取得 | PDBパス・GUID・Ageをカラー表示 |
 | 13 | [ ] | Section Entropy 計算 | エントロピー計算 / `[normal]` / `[^ elevated]` / `[!! HIGH]` 判定 | セクションごとのエントロピー値と判定結果をカラー表示 |
@@ -153,10 +153,10 @@
 | 水色 | hex 値 | `0x5A4D` `0x00001000` |
 | 黄色 | シンボル名・識別子 | `IMAGE_FILE_MACHINE_I386` `PE32` `IMAGE_SUBSYSTEM_WINDOWS_CUI` |
 | 薄グレー | 補足の生値 | `(0x014C)` `(0x010B)` |
-| 緑 | セット済みフラグ | `[x] IMAGE_FILE_EXECUTABLE_IMAGE` |
+| 明るい緑 | セット済みフラグ | `[x] IMAGE_FILE_EXECUTABLE_IMAGE` |
 | 暗グレー | 未セットフラグ / 空エントリ行全体 / `(all zero)` | `[ ] IMAGE_FILE_DLL` / RVA=0のData Directory行 |
 | 薄グレー (italic) | 注釈 | `(no flags set)` `(11 flags not set)` `(all zero)` `(7 active, 9 empty)` |
-| 水色 (dim) | `RVA:` `Size:` ラベル | Data Directories のカラムヘッダ |
+| 水色 | `RVA:` `Size:` ラベル | Data Directories のカラムヘッダ |
 | 暗グレー | インデックス | `[00]` `[01]` |
 
 ### 空エントリの扱い
