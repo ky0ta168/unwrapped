@@ -12,8 +12,54 @@ pub fn fmt_identifier(s: &str) -> ColoredString {
     s.yellow()
 }
 
+/// 補足・注釈テキスト（暗グレー）
 pub fn fmt_dim(s: &str) -> ColoredString {
     s.bright_black()
+}
+
+/// ツリー文字・プレフィックス（暗グレー）
+pub fn fmt_tree(s: &str) -> ColoredString {
+    s.bright_black()
+}
+
+/// セクション名（青・太字）
+pub fn fmt_section(s: &str) -> ColoredString {
+    s.blue().bold()
+}
+
+/// フィールド名（白）
+pub fn fmt_field(s: &str) -> ColoredString {
+    s.white()
+}
+
+/// ファイルオフセット列（暗グレー、"[0xXXXX]  " 形式）
+pub fn fmt_offset(o: usize) -> String {
+    format!("[{:#06X}]  ", o).bright_black().to_string()
+}
+
+/// RVA:/Size: などのラベル（水色・dim）
+pub fn fmt_label(s: &str) -> ColoredString {
+    s.cyan().dimmed()
+}
+
+/// セットされているフラグ行（緑）: "[x] NAME (0xXXXXXXXX)"
+pub fn fmt_flag_on(name: &str, mask: u32) -> String {
+    format!(
+        "{} {} {}",
+        "[x]".green(),
+        name.green(),
+        format!("(0x{:08X})", mask).bright_black()
+    )
+}
+
+/// セットされていないフラグ行（暗グレー）: "[ ] NAME (0xXXXXXXXX)"
+pub fn fmt_flag_off(name: &str, mask: u32) -> String {
+    format!(
+        "{} {} {}",
+        "[ ]".bright_black(),
+        name.bright_black(),
+        format!("(0x{:08X})", mask).bright_black()
+    )
 }
 
 /// シンボル名と生の数値を組み合わせて表示する。例: `PE32 (0x010B)`
@@ -27,8 +73,8 @@ pub fn fmt_symbol(name: &str, raw: u16) -> String {
 
 /// フィールド行を1行出力する。
 /// offset: ファイルオフセット（None = 10スペースの空白列）
-/// prefix: ツリープレフィックス文字列（暗グレーで表示）
-/// key: フィールド名（白、kw幅にパディング）
+/// prefix: ツリープレフィックス文字列
+/// key: フィールド名（kw幅にパディング）
 /// kw: キー列の幅
 /// value: 表示する値
 pub fn print_field(
@@ -39,31 +85,27 @@ pub fn print_field(
     value: impl std::fmt::Display,
 ) {
     let off = match offset {
-        Some(o) => format!("[{:#06X}]  ", o).bright_black().to_string(),
+        Some(o) => fmt_offset(o),
         None => "          ".to_string(),
     };
     let padded = format!("{:<kw$}", key, kw = kw);
     println!(
         "{}{}{} {}",
         off,
-        prefix.bright_black(),
-        padded.white(),
+        fmt_tree(prefix),
+        fmt_field(&padded),
         value
     );
 }
 
 /// セクションヘッダ行を出力する（オフセット列は常に空白）。
 /// connector: "├─ " または "└─ "
-/// name: セクション名（青・太字）
+/// name: セクション名
 pub fn print_section_header(connector: &str, name: &str) {
-    println!(
-        "          {}{}",
-        connector.bright_black(),
-        name.blue().bold()
-    );
+    println!("          {}{}", fmt_tree(connector), fmt_section(name));
 }
 
 /// ツリー継続を示す空白セパレータ行を出力する。
 pub fn print_separator(tree_chars: &str) {
-    println!("          {}", tree_chars.bright_black());
+    println!("          {}", fmt_tree(tree_chars));
 }

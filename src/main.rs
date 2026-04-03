@@ -57,5 +57,10 @@ fn main() {
         dd_base,
         &dirs,
         all_flags,
+        false, // Optional Header は最後ではない（Section Headers が後続）
     );
+    println!("          {}", "│".bright_black());
+
+    let (sh_base, sections) = pe.section_headers();
+    dump::dump_section_headers(sh_base, &sections, all_flags);
 }

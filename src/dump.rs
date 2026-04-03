@@ -1,37 +1,27 @@
 use crate::color::*;
 use crate::pe;
-use colored::Colorize;
 
 const KW: usize = 30;
 
-// ── ツリープレフィックス定数 ──────────────────────────────────────────────────
+// ── ツリープレフィックス定数（非末尾セクション用）────────────────────────────
 // NL = 非末尾セクション（DOS Header, COFF: 親パイプ "│  " が継続）
-// LL = 末尾セクション  （Optional Header: 親が "   " でパイプなし）
 //  _F   = フィールド（末尾以外）
 //  _FL  = フィールド（末尾）
 //  _FLG  = 末尾フィールド配下のフラグ（末尾以外）
 //  _FLGL = 末尾フィールド配下のフラグ（末尾）
-//
-// LL フラグの場合、親フィールドは "├─ "（末尾以外）なので継続パイプは "│  "
-//  LL_FLG  = "   " (opt終了) + "│  " (フィールド継続) + "├─ "
-//  LL_FLGL = "   " + "│  " + "└─ "
+//  _FLGA = フラグ注釈インデント（└─ をスペースに置換）
 
 const NL_F: &str = "│  ├─ ";
 const NL_FL: &str = "│  └─ ";
 const NL_FLG: &str = "│     ├─ ";
 const NL_FLGL: &str = "│     └─ ";
-const NL_FLGA: &str = "│        "; // 注釈インデント（└─ をスペースに置換）
-
-const LL_F: &str = "   ├─ ";
-const LL_FLG: &str = "   │  ├─ ";
-const LL_FLGL: &str = "   │  └─ ";
-const LL_FLGA: &str = "   │     "; // 注釈インデント（└─ をスペースに置換）
+const NL_FLGA: &str = "│        ";
 
 /// フィールド配下のフラグを出力する。
 /// all_flags: true なら全フラグ表示、false ならセット済みフラグのみ + "(N flags not set)" 注釈。
 fn print_flags(
-    flags: &[(u16, &str)],
-    value: u16,
+    flags: &[(u32, &str)],
+    value: u32,
     pfx_mid: &str,
     pfx_last: &str,
     pfx_annotation: &str,
@@ -42,26 +32,16 @@ fn print_flags(
         for (i, &(flag, name)) in flags.iter().enumerate() {
             let pfx = if i + 1 < n { pfx_mid } else { pfx_last };
             if value & flag != 0 {
-                println!(
-                    "          {}{} {}",
-                    pfx.bright_black(),
-                    "[x]".green(),
-                    name.green()
-                );
+                println!("          {}{}", fmt_tree(pfx), fmt_flag_on(name, flag));
             } else {
-                println!(
-                    "          {}{} {}",
-                    pfx.bright_black(),
-                    "[ ]".bright_black(),
-                    name.bright_black()
-                );
+                println!("          {}{}", fmt_tree(pfx), fmt_flag_off(name, flag));
             }
         }
     } else {
-        let set: Vec<&str> = flags
+        let set: Vec<(u32, &str)> = flags
             .iter()
             .filter(|&&(f, _)| value & f != 0)
-            .map(|&(_, n)| n)
+            .map(|&(f, n)| (f, n))
             .collect();
         let unset_count = flags.len() - set.len();
 
@@ -69,27 +49,22 @@ fn print_flags(
             // フラグが1件もセットされていない場合: └─ コネクタで1行のみ表示
             println!(
                 "          {}{}",
-                pfx_last.bright_black(),
-                "(no flags set)".bright_black()
+                fmt_tree(pfx_last),
+                fmt_dim("(no flags set)")
             );
         } else {
             // セット済みフラグのみ表示
             let n = set.len();
-            for (i, &name) in set.iter().enumerate() {
+            for (i, &(flag, name)) in set.iter().enumerate() {
                 let pfx = if i + 1 < n { pfx_mid } else { pfx_last };
-                println!(
-                    "          {}{} {}",
-                    pfx.bright_black(),
-                    "[x]".green(),
-                    name.green()
-                );
+                println!("          {}{}", fmt_tree(pfx), fmt_flag_on(name, flag));
             }
             // 注釈行
             if unset_count > 0 {
                 println!(
                     "          {}{}",
-                    pfx_annotation.bright_black(),
-                    format!("({} flags not set)", unset_count).bright_black()
+                    fmt_tree(pfx_annotation),
+                    fmt_dim(&format!("({} flags not set)", unset_count))
                 );
             }
         }
@@ -323,7 +298,7 @@ pub fn dump_coff_header(coff: &pe::CoffHeader, base: usize, all_flags: bool) {
     );
     print_flags(
         pe::CHARACTERISTICS_FLAGS,
-        coff.characteristics,
+        coff.characteristics as u32,
         NL_FLG,
         NL_FLGL,
         NL_FLGA,
@@ -331,13 +306,27 @@ pub fn dump_coff_header(coff: &pe::CoffHeader, base: usize, all_flags: bool) {
     );
 }
 
+/// Optional Header とその子要素（Data Directories を含む）を出力する。
+/// is_last: true なら末尾セクション（└─）、false なら非末尾（├─）。
 pub fn dump_optional_header(
     opt: &pe::OptionalHeader,
     base: usize,
     dd_base: usize,
     dirs: &[pe::DataDirectory],
     all_flags: bool,
+    is_last: bool,
 ) {
+    // 親継続文字: 末尾なら "   "、非末尾なら "│  "
+    let pc = if is_last { "   " } else { "│  " };
+    let connector = if is_last { "└─ " } else { "├─ " };
+
+    // Optional Header 配下のフィールドプレフィックス
+    let f = format!("{}├─ ", pc); // フィールド（末尾以外）
+    let flg = format!("{}│  ├─ ", pc); // DllCharacteristics フラグ（末尾以外）
+    let flgl = format!("{}│  └─ ", pc); // DllCharacteristics フラグ（末尾）
+    let flga = format!("{}│     ", pc); // フラグ注釈インデント
+    let sep = format!("{}│", pc); // 内部セパレータ
+
     let is_pe32plus = opt.magic == 0x020B;
     let magic_label = match opt.magic {
         0x010B => "PE32",
@@ -353,60 +342,60 @@ pub fn dump_optional_header(
     // PE32: ImageBase は base+28、PE32+: ImageBase は base+24（BaseOfData なし）
     let image_base_off = if is_pe32plus { base + 24 } else { base + 28 };
 
-    print_section_header("└─ ", "Optional Header");
+    print_section_header(connector, "Optional Header");
 
     print_field(
         Some(base),
-        LL_F,
+        &f,
         "Magic",
         KW,
         fmt_symbol(magic_label, opt.magic),
     );
     print_field(
         Some(base + 2),
-        LL_F,
+        &f,
         "MajorLinkerVersion",
         KW,
         fmt_value(&format!("{}", opt.major_linker_version)),
     );
     print_field(
         Some(base + 3),
-        LL_F,
+        &f,
         "MinorLinkerVersion",
         KW,
         fmt_value(&format!("{}", opt.minor_linker_version)),
     );
     print_field(
         Some(base + 4),
-        LL_F,
+        &f,
         "SizeOfCode",
         KW,
         fmt_value(&format!("{:#010X}", opt.size_of_code)),
     );
     print_field(
         Some(base + 8),
-        LL_F,
+        &f,
         "SizeOfInitializedData",
         KW,
         fmt_value(&format!("{:#010X}", opt.size_of_initialized_data)),
     );
     print_field(
         Some(base + 12),
-        LL_F,
+        &f,
         "SizeOfUninitializedData",
         KW,
         fmt_value(&format!("{:#010X}", opt.size_of_uninitialized_data)),
     );
     print_field(
         Some(base + 16),
-        LL_F,
+        &f,
         "AddressOfEntryPoint",
         KW,
         fmt_addr(&format!("{:#010X}", opt.address_of_entry_point)),
     );
     print_field(
         Some(base + 20),
-        LL_F,
+        &f,
         "BaseOfCode",
         KW,
         fmt_addr(&format!("{:#010X}", opt.base_of_code)),
@@ -415,7 +404,7 @@ pub fn dump_optional_header(
     if let Some(bod) = opt.base_of_data {
         print_field(
             Some(base + 24),
-            LL_F,
+            &f,
             "BaseOfData",
             KW,
             fmt_addr(&format!("{:#010X}", bod)),
@@ -424,98 +413,98 @@ pub fn dump_optional_header(
 
     print_field(
         Some(image_base_off),
-        LL_F,
+        &f,
         "ImageBase",
         KW,
         fmt_addr(&format!("{:#018X}", opt.image_base)),
     );
     print_field(
         Some(base + 32),
-        LL_F,
+        &f,
         "SectionAlignment",
         KW,
         fmt_value(&format!("{:#010X}", opt.section_alignment)),
     );
     print_field(
         Some(base + 36),
-        LL_F,
+        &f,
         "FileAlignment",
         KW,
         fmt_value(&format!("{:#010X}", opt.file_alignment)),
     );
     print_field(
         Some(base + 40),
-        LL_F,
+        &f,
         "MajorOperatingSystemVersion",
         KW,
         fmt_value(&format!("{}", opt.major_os_version)),
     );
     print_field(
         Some(base + 42),
-        LL_F,
+        &f,
         "MinorOperatingSystemVersion",
         KW,
         fmt_value(&format!("{}", opt.minor_os_version)),
     );
     print_field(
         Some(base + 44),
-        LL_F,
+        &f,
         "MajorImageVersion",
         KW,
         fmt_value(&format!("{}", opt.major_image_version)),
     );
     print_field(
         Some(base + 46),
-        LL_F,
+        &f,
         "MinorImageVersion",
         KW,
         fmt_value(&format!("{}", opt.minor_image_version)),
     );
     print_field(
         Some(base + 48),
-        LL_F,
+        &f,
         "MajorSubsystemVersion",
         KW,
         fmt_value(&format!("{}", opt.major_subsystem_version)),
     );
     print_field(
         Some(base + 50),
-        LL_F,
+        &f,
         "MinorSubsystemVersion",
         KW,
         fmt_value(&format!("{}", opt.minor_subsystem_version)),
     );
     print_field(
         Some(base + 52),
-        LL_F,
+        &f,
         "Win32VersionValue",
         KW,
         fmt_value(&format!("{:#010X}", opt.win32_version_value)),
     );
     print_field(
         Some(base + 56),
-        LL_F,
+        &f,
         "SizeOfImage",
         KW,
         fmt_value(&format!("{:#010X}", opt.size_of_image)),
     );
     print_field(
         Some(base + 60),
-        LL_F,
+        &f,
         "SizeOfHeaders",
         KW,
         fmt_value(&format!("{:#010X}", opt.size_of_headers)),
     );
     print_field(
         Some(base + 64),
-        LL_F,
+        &f,
         "CheckSum",
         KW,
         fmt_value(&format!("{:#010X}", opt.check_sum)),
     );
     print_field(
         Some(base + 68),
-        LL_F,
+        &f,
         "Subsystem",
         KW,
         fmt_symbol(subsystem_name, opt.subsystem),
@@ -524,28 +513,30 @@ pub fn dump_optional_header(
     // DllCharacteristics は末尾フィールドではない（Data Directories が後続）
     print_field(
         Some(base + 70),
-        LL_F,
+        &f,
         "DllCharacteristics",
         KW,
         fmt_value(&format!("{:#06X}", opt.dll_characteristics)),
     );
     print_flags(
         pe::DLL_CHARACTERISTICS_FLAGS,
-        opt.dll_characteristics,
-        LL_FLG,
-        LL_FLGL,
-        LL_FLGA,
+        opt.dll_characteristics as u32,
+        &flg,
+        &flgl,
+        &flga,
         all_flags,
     );
 
     // Data Directories の前にセパレータを挿入
-    print_separator("   │");
+    print_separator(&sep);
 
     // Data Directories は Optional Header の最後の子要素
-    dump_data_directories(dd_base, dirs);
+    dump_data_directories(dd_base, dirs, pc);
 }
 
-fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory]) {
+/// Data Directories を出力する。
+/// pc: 親継続文字（"   " または "│  "）
+fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory], pc: &str) {
     const NAME_W: usize = 25;
 
     let active = dirs
@@ -554,13 +545,17 @@ fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory]) {
         .count();
     let empty = dirs.len() - active;
 
-    // Optional Header の最後の子として "Data Directories" ヘッダを出力（"   └─ "）
+    // Optional Header の最後の子として "Data Directories" ヘッダを出力
     println!(
         "          {}{}  {}",
-        "   └─ ".bright_black(),
-        "Data Directories".blue().bold(),
-        format!("({} active, {} empty)", active, empty).bright_black()
+        fmt_tree(&format!("{}└─ ", pc)),
+        fmt_section("Data Directories"),
+        fmt_dim(&format!("({} active, {} empty)", active, empty))
     );
+
+    // DD エントリのコネクタ（pc の直後に 3スペース + ├─/└─）
+    let conn_mid = format!("{}   ├─", pc);
+    let conn_last = format!("{}   └─", pc);
 
     let n = dirs.len();
     for (i, dir) in dirs.iter().enumerate() {
@@ -571,12 +566,7 @@ fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory]) {
         let is_last = i + 1 >= n;
         let is_empty = dir.virtual_address == 0 && dir.size == 0;
 
-        let off = format!("[{:#06X}]  ", dd_base + i * 8);
-        let conn = if is_last {
-            "      └─"
-        } else {
-            "      ├─"
-        };
+        let conn = if is_last { &conn_last } else { &conn_mid };
         // "[NN] {name:<NAME_W$}" — インデックス + スペース + パディング済み名前
         let idx_and_name = format!("[{:02}] {:<NAME_W$}", i, name);
         let rva_hex = format!("{:#010X}", dir.virtual_address);
@@ -588,22 +578,105 @@ fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory]) {
                 "{}{}RVA: {}  Size: {}",
                 conn, idx_and_name, rva_hex, size_hex
             );
-            println!("{}{}", off.bright_black(), row.bright_black());
+            println!("{}{}", fmt_offset(dd_base + i * 8), fmt_dim(&row));
         } else {
-            // "[NN] " は暗グレー、名前は白、ラベルは暗シアン、値はシアン
-            // 形式: {off}{conn}{[NN] }{name}RVA: {rva}  Size: {size}
+            // "[NN] " は暗グレー、名前は白、ラベルは水色dim、値はシアン
             // idx_and_name[..5] = "[NN] "、idx_and_name[5..] = パディング済み名前
             println!(
                 "{}{}{}{}{} {}  {} {}",
-                off.bright_black(),
-                conn.bright_black(),
-                idx_and_name[..5].bright_black(),
-                idx_and_name[5..].white(),
-                "RVA:".cyan().dimmed(),
+                fmt_offset(dd_base + i * 8),
+                fmt_tree(conn),
+                fmt_tree(&idx_and_name[..5]),
+                fmt_field(&idx_and_name[5..]),
+                fmt_label("RVA:"),
                 fmt_addr(&rva_hex),
-                "Size:".cyan().dimmed(),
+                fmt_label("Size:"),
                 fmt_addr(&size_hex)
             );
         }
+    }
+}
+
+pub fn dump_section_headers(sh_base: usize, sections: &[pe::SectionHeader], all_flags: bool) {
+    let n = sections.len();
+
+    println!(
+        "          {}{}  {}",
+        fmt_tree("└─ "),
+        fmt_section("Section Headers"),
+        fmt_dim(&format!("({} sections)", n))
+    );
+
+    for (i, sec) in sections.iter().enumerate() {
+        let sec_base = sh_base + i * 40;
+        let is_last_sec = i + 1 >= n;
+
+        // セクション名行のコネクタ
+        let sec_conn = if is_last_sec {
+            "   └─ "
+        } else {
+            "   ├─ "
+        };
+        let name_str = if sec.name.is_empty() {
+            fmt_dim("(unnamed)").to_string()
+        } else {
+            fmt_identifier(&sec.name).to_string()
+        };
+        println!("{}{}{}", fmt_offset(sec_base), fmt_tree(sec_conn), name_str);
+
+        // このセクションの子要素の親継続文字（6文字）
+        let sec_pc = if is_last_sec { "      " } else { "   │  " };
+        // フィールドプレフィックス
+        let f_pfx = format!("{}├─ ", sec_pc);
+        let fl_pfx = format!("{}└─ ", sec_pc);
+        // Characteristics は └─ なので、フラグの親継続は sec_pc + "   "
+        let char_cont = format!("{}   ", sec_pc);
+        let flg_pfx = format!("{}├─ ", char_cont);
+        let flgl_pfx = format!("{}└─ ", char_cont);
+        let flga_pfx = format!("{}   ", char_cont);
+
+        print_field(
+            Some(sec_base + 8),
+            &f_pfx,
+            "VirtualSize",
+            KW,
+            fmt_value(&format!("{:#010X}", sec.virtual_size)),
+        );
+        print_field(
+            Some(sec_base + 12),
+            &f_pfx,
+            "VirtualAddress",
+            KW,
+            fmt_addr(&format!("{:#010X}", sec.virtual_address)),
+        );
+        print_field(
+            Some(sec_base + 16),
+            &f_pfx,
+            "SizeOfRawData",
+            KW,
+            fmt_value(&format!("{:#010X}", sec.size_of_raw_data)),
+        );
+        print_field(
+            Some(sec_base + 20),
+            &f_pfx,
+            "PointerToRawData",
+            KW,
+            fmt_addr(&format!("{:#010X}", sec.pointer_to_raw_data)),
+        );
+        print_field(
+            Some(sec_base + 36),
+            &fl_pfx,
+            "Characteristics",
+            KW,
+            fmt_value(&format!("{:#010X}", sec.characteristics)),
+        );
+        print_flags(
+            pe::SECTION_CHARACTERISTICS_FLAGS,
+            sec.characteristics,
+            &flg_pfx,
+            &flgl_pfx,
+            &flga_pfx,
+            all_flags,
+        );
     }
 }
