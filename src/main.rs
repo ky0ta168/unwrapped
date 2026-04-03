@@ -18,7 +18,7 @@ fn main() {
         .collect();
 
     if positional.is_empty() {
-        eprintln!("Usage: unwraped [--all-flags] <file>");
+        eprintln!("Usage: unwrapped [--all-flags] <file>");
         std::process::exit(1);
     }
 
@@ -32,12 +32,12 @@ fn main() {
         }
     };
 
-    println!(r#" _   _                                        _"#);
-    println!(r#"| | | |_ ____      ___ __ __ _ _ __   ___  __| |"#);
-    println!(r#"| | | | '_ \ \ /\ / / '__/ _` | '_ \ / _ \/ _` |"#);
-    println!(r#"| |_| | | | \ V  V /| | | (_| | |_) |  __/ (_| |"#);
-    println!(r#" \___/|_| |_|\_/\_/ |_|  \__,_| .__/ \___|\__,_|"#);
-    println!(r#"                              |_|"#);
+    println!(r#" _   _                                              _"#);
+    println!(r#"| | | |_ ____      ___ __ __ _ _ __  _ __   ___  __| |"#);
+    println!(r#"| | | | '_ \ \ /\ / / '__/ _` | '_ \| '_ \ / _ \/ _` |"#);
+    println!(r#"| |_| | | | \ V  V /| | | (_| | |_) | |_) |  __/ (_| |"#);
+    println!(r#" \___/|_| |_|\_/\_/ |_|  \__,_| .__/| .__/ \___|\__,_|"#);
+    println!(r#"                              |_|   |_|"#);
     println!();
 
     println!("{} {}", "[FILE]".bright_green(), file_path.white());

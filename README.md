@@ -1,4 +1,4 @@
-# Unwraped
+# Unwrapped
 
 PE ファイル（`.exe` / `.dll`）の構造をターミナルにダンプするツール。
 `dumpbin` / `readelf` の簡易自作版。
@@ -14,7 +14,7 @@ cargo build --release
 ## 使い方
 
 ```
-unwraped [--all-flags] <file>
+unwrapped [--all-flags] <file>
 ```
 
 | オプション | 説明 |

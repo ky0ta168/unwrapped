@@ -1,4 +1,4 @@
-# unwraped
+# unwrapped
 
 ## プロジェクト概要
 
@@ -31,7 +31,7 @@
 
 | # | 完了 | ステップ名 | 実装内容 | 確認内容 |
 |---|------|-----------|---------|---------|
-| 1 | [x] | プロジェクトセットアップ | `cargo new unwraped` / `colored` クレート追加 / コマンドライン引数受け取り | ファイルパスを受け取って表示する |
+| 1 | [x] | プロジェクトセットアップ | `cargo new unwrapped` / `colored` クレート追加 / コマンドライン引数受け取り | ファイルパスを受け取って表示する |
 | 2 | [x] | カラー表示・レイアウト基盤 | 左ボーダー表示関数 / キー・値・アドレス・DLL名の色付け関数 / エントロピー色付け関数 | ダミーデータで全カラーパターンを表示する |
 | 3 | [x] | PEファイル読み込み・バリデーション | バイト列読み込み / MZ・PEシグネチャ確認 | 有効なPEかどうかをカラー表示する |
 | 4 | [x] | DOS Header パース | `IMAGE_DOS_HEADER` 構造体定義 / `Magic` / `e_lfanew` パース | DOS Headerの各フィールドをカラー表示 |
@@ -290,3 +290,42 @@ _   _                                        _
 [0x01E0]        ├─[14] CLR Runtime Header       RVA: 0x00000000  Size: 0x00000000
 [0x01E8]        └─[15] Reserved                 RVA: 0x00000000  Size: 0x00000000
 ```
+
+---
+
+## パース済みだが未表示の情報
+
+<!-- TODO: 後ほど精査して実装の有無を考える -->
+
+### Optional Header（未表示フィールド）
+
+| フィールド | オフセット(PE32) | オフセット(PE32+) | 説明 |
+|-----------|----------------|-----------------|------|
+| `SizeOfStackReserve` | +60 | +56 | スタック予約サイズ |
+| `SizeOfStackCommit`  | +64 | +64 | スタック初期コミットサイズ |
+| `SizeOfHeapReserve`  | +68 | +72 | ヒープ予約サイズ |
+| `SizeOfHeapCommit`   | +72 | +80 | ヒープ初期コミットサイズ |
+| `LoaderFlags`        | +76 | +88 | 予約済み（常に0） |
+| `NumberOfRvaAndSizes`| +80 | +92 | Data Directory の有効エントリ数 |
+
+### Section Headers（未表示フィールド）
+
+| フィールド | オフセット | 説明 |
+|-----------|-----------|------|
+| `PointerToRelocations`  | +24 | COFF リロケーションテーブルへのファイルオフセット |
+| `PointerToLinenumbers`  | +28 | 行番号テーブルへのファイルオフセット |
+| `NumberOfRelocations`   | +32 | リロケーションエントリ数 |
+| `NumberOfLinenumbers`   | +34 | 行番号エントリ数 |
+
+### Import Table（未表示フィールド）
+
+各 `IMAGE_IMPORT_DESCRIPTOR` の未表示フィールド：
+
+| フィールド | オフセット | 説明 |
+|-----------|-----------|------|
+| `TimeDateStamp` | +4 | 0=unbound、`0xFFFFFFFF`=bound（NewImport形式） |
+| `ForwarderChain` | +8 | フォワードチェーンの先頭インデックス |
+
+### Export Table（未デコードの情報）
+
+- **フォワードエクスポート**: 関数の RVA がエクスポートディレクトリ範囲内を指す場合、その RVA は関数ではなく転送先を示す文字列（例: `NTDLL.RtlAllocateHeap`）。現在は RVA をそのまま表示しており、転送先文字列を読んでいない。
