@@ -9,7 +9,7 @@ const KW: usize = 30;
 //  _FL  = フィールド（末尾）
 //  _FLG  = 末尾フィールド配下のフラグ（末尾以外）
 //  _FLGL = 末尾フィールド配下のフラグ（末尾）
-//  _FLGA = フラグ注釈インデント（└─ をスペースに置換）
+//  _FLGA = フラグ注釈インデント
 
 const NL_F: &str = "│  ├─ ";
 const NL_FL: &str = "│  └─ ";
@@ -32,9 +32,13 @@ fn print_flags(
         for (i, &(flag, name)) in flags.iter().enumerate() {
             let pfx = if i + 1 < n { pfx_mid } else { pfx_last };
             if value & flag != 0 {
-                println!("          {}{}", fmt_tree(pfx), fmt_flag_on(name, flag));
+                println!("              {}{}", fmt_tree(pfx), fmt_flag_on(name, flag));
             } else {
-                println!("          {}{}", fmt_tree(pfx), fmt_flag_off(name, flag));
+                println!(
+                    "              {}{}",
+                    fmt_tree(pfx),
+                    fmt_flag_off(name, flag)
+                );
             }
         }
     } else {
@@ -48,7 +52,7 @@ fn print_flags(
         if set.is_empty() {
             // フラグが1件もセットされていない場合: └─ コネクタで1行のみ表示
             println!(
-                "          {}{}",
+                "              {}{}",
                 fmt_tree(pfx_last),
                 fmt_dim("(no flags set)")
             );
@@ -57,12 +61,12 @@ fn print_flags(
             let n = set.len();
             for (i, &(flag, name)) in set.iter().enumerate() {
                 let pfx = if i + 1 < n { pfx_mid } else { pfx_last };
-                println!("          {}{}", fmt_tree(pfx), fmt_flag_on(name, flag));
+                println!("              {}{}", fmt_tree(pfx), fmt_flag_on(name, flag));
             }
             // 注釈行
             if unset_count > 0 {
                 println!(
-                    "          {}{}",
+                    "              {}{}",
                     fmt_tree(pfx_annotation),
                     fmt_dim(&format!("({} flags not set)", unset_count))
                 );
@@ -547,7 +551,7 @@ fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory], pc: &str) {
 
     // Optional Header の最後の子として "Data Directories" ヘッダを出力
     println!(
-        "          {}{}  {}",
+        "              {}{}  {}",
         fmt_tree(&format!("{}└─ ", pc)),
         fmt_section("Data Directories"),
         fmt_dim(&format!("({} active, {} empty)", active, empty))
@@ -575,18 +579,18 @@ fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory], pc: &str) {
         if is_empty {
             // 行全体を暗グレーで表示
             let row = format!(
-                "{}{}RVA: {}  Size: {}",
+                "{} {}RVA: {}  Size: {}",
                 conn, idx_and_name, rva_hex, size_hex
             );
             println!("{}{}", fmt_offset(dd_base + i * 8), fmt_dim(&row));
         } else {
             // "[NN] " は暗グレー、名前は白、ラベルは水色dim、値はシアン
-            // idx_and_name[..5] = "[NN] "、idx_and_name[5..] = パディング済み名前
+            // idx_and_name[..5] = " [NN] "、idx_and_name[5..] = パディング済み名前
             println!(
-                "{}{}{}{}{} {}  {} {}",
+                "{}{} {}{}{} {}  {} {}",
                 fmt_offset(dd_base + i * 8),
                 fmt_tree(conn),
-                fmt_tree(&idx_and_name[..5]),
+                fmt_field(&idx_and_name[..5]),
                 fmt_field(&idx_and_name[5..]),
                 fmt_label("RVA:"),
                 fmt_addr(&rva_hex),
@@ -597,12 +601,20 @@ fn dump_data_directories(dd_base: usize, dirs: &[pe::DataDirectory], pc: &str) {
     }
 }
 
-pub fn dump_section_headers(sh_base: usize, sections: &[pe::SectionHeader], all_flags: bool) {
-    let n = sections.len();
+pub fn dump_section_headers(
+    sh_base: usize,
+    sections: &[pe::SectionHeader],
+    all_flags: bool,
+    is_last: bool,
+) {
+    // 親継続文字: 末尾なら "   "、非末尾なら "│  "
+    let pc_top = if is_last { "   " } else { "│  " };
+    let connector = if is_last { "└─ " } else { "├─ " };
 
+    let n = sections.len();
     println!(
-        "          {}{}  {}",
-        fmt_tree("└─ "),
+        "              {}{}  {}",
+        fmt_tree(connector),
         fmt_section("Section Headers"),
         fmt_dim(&format!("({} sections)", n))
     );
@@ -613,19 +625,28 @@ pub fn dump_section_headers(sh_base: usize, sections: &[pe::SectionHeader], all_
 
         // セクション名行のコネクタ
         let sec_conn = if is_last_sec {
-            "   └─ "
+            format!("{}└─ ", pc_top)
         } else {
-            "   ├─ "
+            format!("{}├─ ", pc_top)
         };
         let name_str = if sec.name.is_empty() {
             fmt_dim("(unnamed)").to_string()
         } else {
             fmt_identifier(&sec.name).to_string()
         };
-        println!("{}{}{}", fmt_offset(sec_base), fmt_tree(sec_conn), name_str);
+        println!(
+            "{}{}{}",
+            fmt_offset(sec_base),
+            fmt_tree(&sec_conn),
+            name_str
+        );
 
-        // このセクションの子要素の親継続文字（6文字）
-        let sec_pc = if is_last_sec { "      " } else { "   │  " };
+        // このセクションの子要素の親継続文字
+        let sec_pc = if is_last_sec {
+            format!("{}   ", pc_top)
+        } else {
+            format!("{}│  ", pc_top)
+        };
         // フィールドプレフィックス
         let f_pfx = format!("{}├─ ", sec_pc);
         let fl_pfx = format!("{}└─ ", sec_pc);
@@ -678,5 +699,64 @@ pub fn dump_section_headers(sh_base: usize, sections: &[pe::SectionHeader], all_
             &flga_pfx,
             all_flags,
         );
+    }
+}
+
+pub fn dump_import_table(descriptors: &[pe::ImportDescriptor]) {
+    let n = descriptors.len();
+    println!(
+        "              {}{}  {}",
+        fmt_tree("└─ "),
+        fmt_section("Import Table"),
+        fmt_dim(&format!("({} DLLs)", n))
+    );
+
+    for (i, desc) in descriptors.iter().enumerate() {
+        let is_last_dll = i + 1 >= n;
+        let dll_conn = if is_last_dll {
+            "   └─ "
+        } else {
+            "   ├─ "
+        };
+        let dll_pc = if is_last_dll { "      " } else { "   │  " };
+
+        // DLL ヘッダ行
+        println!(
+            "{}{}{}  {}",
+            fmt_offset(desc.offset),
+            fmt_tree(dll_conn),
+            fmt_identifier(&desc.dll_name),
+            fmt_dim(&format!("({} functions)", desc.functions.len()))
+        );
+
+        // 関数エントリ
+        let m = desc.functions.len();
+        for (j, func) in desc.functions.iter().enumerate() {
+            let is_last_fn = j + 1 >= m;
+            let fn_conn = if is_last_fn {
+                format!("{}└─ ", dll_pc)
+            } else {
+                format!("{}├─ ", dll_pc)
+            };
+
+            let entry_str = match func.ordinal {
+                Some(ord) => format!("{}", fmt_dim(&format!("(ordinal 0x{:04X})", ord))),
+                None => {
+                    let hint = func
+                        .hint
+                        .map(|h| format!("{} ", fmt_dim(&format!("[0x{:04X}]", h))))
+                        .unwrap_or_default();
+                    let name = func.name.as_deref().unwrap_or("(unknown)");
+                    format!("{}{}", hint, fmt_identifier(name))
+                }
+            };
+
+            println!(
+                "{}{}{}",
+                fmt_offset(func.thunk_offset),
+                fmt_tree(&fn_conn),
+                entry_str
+            );
+        }
     }
 }

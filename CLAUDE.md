@@ -38,7 +38,7 @@
 | 6 | [x] | Optional Header パース | `IMAGE_OPTIONAL_HEADER32` 構造体定義 / EntryPoint / ImageBase / Subsystem / DllCharacteristics パース | EntryPoint・ImageBase・Subsystem・DllCharacteristicsフラグをカラー表示 |
 | 7 | [x] | Data Directories パース | 16エントリの RVA / Size パース | 16エントリのRVA・Sizeをカラー表示 |
 | 8 | [x] | Section Headers パース | `IMAGE_SECTION_HEADER` 構造体定義 / Name / VirtualAddress / VirtualSize / Characteristics パース | セクション名・アドレス・サイズ・フラグをカラー表示 |
-| 9 | [ ] | Import Table パース | DLL名 / INT / IAT / 関数名 / Hint 取得 | DLL名・関数名・HintをカラーでDLLごとにグループ表示 |
+| 9 | [x] | Import Table パース | DLL名 / INT / IAT / 関数名 / Hint 取得 | DLL名・関数名・HintをカラーでDLLごとにグループ表示 |
 | 10 | [ ] | Export Table パース | 関数名 / Ordinal / RVA 取得 | エクスポート関数名・Ordinal・RVAをカラー表示 |
 | 11 | [ ] | Base Relocations パース | ブロック / エントリ / Type / Offset 取得 | ブロックごとのVirtualAddress・Type・Offsetをカラー表示 |
 | 12 | [ ] | Debug Directory パース | CodeViewのPDBパス / GUID / Age 取得 | PDBパス・GUID・Ageをカラー表示 |

@@ -32,14 +32,14 @@ pub fn fmt_field(s: &str) -> ColoredString {
     s.white()
 }
 
-/// ファイルオフセット列（暗グレー、"[0xXXXX]  " 形式）
+/// ファイルオフセット列（暗グレー、"[0xXXXXXXXX]  " 形式）
 pub fn fmt_offset(o: usize) -> String {
-    format!("[{:#06X}]  ", o).bright_black().to_string()
+    format!("[{:#010X}]  ", o).bright_black().to_string()
 }
 
 /// RVA:/Size: などのラベル（水色・dim）
 pub fn fmt_label(s: &str) -> ColoredString {
-    s.cyan().dimmed()
+    s.cyan()
 }
 
 /// セットされているフラグ行（緑）: "[x] NAME (0xXXXXXXXX)"
@@ -86,7 +86,7 @@ pub fn print_field(
 ) {
     let off = match offset {
         Some(o) => fmt_offset(o),
-        None => "          ".to_string(),
+        None => "              ".to_string(),
     };
     let padded = format!("{:<kw$}", key, kw = kw);
     println!(
@@ -102,10 +102,10 @@ pub fn print_field(
 /// connector: "├─ " または "└─ "
 /// name: セクション名
 pub fn print_section_header(connector: &str, name: &str) {
-    println!("          {}{}", fmt_tree(connector), fmt_section(name));
+    println!("              {}{}", fmt_tree(connector), fmt_section(name));
 }
 
 /// ツリー継続を示す空白セパレータ行を出力する。
 pub fn print_separator(tree_chars: &str) {
-    println!("          {}", fmt_tree(tree_chars));
+    println!("              {}", fmt_tree(tree_chars));
 }

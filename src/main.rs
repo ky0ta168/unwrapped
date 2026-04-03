@@ -2,6 +2,7 @@ mod color;
 mod dump;
 mod pe;
 
+use crate::color::fmt_tree;
 use colored::Colorize;
 use std::env;
 use std::path::Path;
@@ -39,16 +40,18 @@ fn main() {
     println!(r#"                              |_|"#);
     println!();
 
-    println!("{} {}", "[FILE]".bright_yellow(), file_path.white());
+    println!("{} {}", "[FILE]".yellow(), file_path.white());
 
     let dos = pe.dos_header();
     let e_lfanew = dos.e_lfanew as usize;
 
+    let import = pe.import_table();
+
     dump::dump_dos_header(&dos);
-    println!("          {}", "│".bright_black());
+    println!("              {}", fmt_tree("│"));
 
     dump::dump_coff_header(&pe.coff_header(), e_lfanew + 4, all_flags);
-    println!("          {}", "│".bright_black());
+    println!("              {}", fmt_tree("│"));
 
     let (dd_base, dirs) = pe.data_directories();
     dump::dump_optional_header(
@@ -59,8 +62,14 @@ fn main() {
         all_flags,
         false, // Optional Header は最後ではない（Section Headers が後続）
     );
-    println!("          {}", "│".bright_black());
+    println!("              {}", fmt_tree("│"));
 
     let (sh_base, sections) = pe.section_headers();
-    dump::dump_section_headers(sh_base, &sections, all_flags);
+    let has_import = import.is_some();
+    dump::dump_section_headers(sh_base, &sections, all_flags, !has_import);
+
+    if let Some(descriptors) = import {
+        println!("              {}", fmt_tree("│"));
+        dump::dump_import_table(&descriptors);
+    }
 }
