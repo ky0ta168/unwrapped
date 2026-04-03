@@ -206,11 +206,19 @@ pub struct ExportFunction {
 }
 
 pub struct ExportTable {
-    #[allow(dead_code)]
     pub offset: usize,
+    pub export_flags: u32,
+    pub time_date_stamp: u32,
+    pub major_version: u16,
+    pub minor_version: u16,
+    pub name_rva: u32,
     pub dll_name: String,
-    #[allow(dead_code)]
     pub base: u32,
+    pub number_of_functions: u32,
+    pub number_of_names: u32,
+    pub eat_rva: u32,
+    pub name_ptr_rva: u32,
+    pub name_ord_rva: u32,
     pub functions: Vec<ExportFunction>,
 }
 
@@ -405,6 +413,10 @@ impl PeFile {
         }
 
         // IMAGE_EXPORT_DIRECTORY のフィールド
+        let export_flags = read_u32(d, dir_offset);
+        let time_date_stamp = read_u32(d, dir_offset + 4);
+        let major_version = read_u16(d, dir_offset + 8);
+        let minor_version = read_u16(d, dir_offset + 10);
         let name_rva = read_u32(d, dir_offset + 12);
         let base = read_u32(d, dir_offset + 16);
         let number_of_functions = read_u32(d, dir_offset + 20);
@@ -460,8 +472,18 @@ impl PeFile {
         } else {
             Some(ExportTable {
                 offset: dir_offset,
+                export_flags,
+                time_date_stamp,
+                major_version,
+                minor_version,
+                name_rva,
                 dll_name,
                 base,
+                number_of_functions,
+                number_of_names,
+                eat_rva,
+                name_ptr_rva,
+                name_ord_rva,
                 functions,
             })
         }

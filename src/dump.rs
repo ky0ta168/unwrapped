@@ -714,14 +714,102 @@ pub fn dump_export_table(exp: &pe::ExportTable, is_last: bool) {
     let connector = if is_last { "└─ " } else { "├─ " };
     let pc = if is_last { "   " } else { "│  " };
 
-    let n = exp.functions.len();
-    println!(
-        "              {}{} {}",
-        fmt_tree(connector),
-        fmt_section("Export Table"),
-        fmt_dim(&format!("{} ({} exports)", exp.dll_name, n))
+    print_section_header(connector, "Export Table");
+
+    let has_funcs = !exp.functions.is_empty();
+    let f = format!("{}├─ ", pc);
+    let fl = format!("{}└─ ", pc);
+
+    // 関数エントリが後続するかで最終フィールドのコネクタを決める
+    let last = if has_funcs { &f } else { &fl };
+
+    print_field(
+        Some(exp.offset),
+        &f,
+        "Characteristics",
+        KW,
+        fmt_value(&format!("{:#010X}", exp.export_flags)),
+    );
+    print_field(
+        Some(exp.offset + 4),
+        &f,
+        "TimeDateStamp",
+        KW,
+        fmt_value(&format!("{:#010X}", exp.time_date_stamp)),
+    );
+    print_field(
+        Some(exp.offset + 8),
+        &f,
+        "MajorVersion",
+        KW,
+        fmt_value(&format!("{}", exp.major_version)),
+    );
+    print_field(
+        Some(exp.offset + 10),
+        &f,
+        "MinorVersion",
+        KW,
+        fmt_value(&format!("{}", exp.minor_version)),
+    );
+    print_field(
+        Some(exp.offset + 12),
+        &f,
+        "Name",
+        KW,
+        format!(
+            "{} {}",
+            fmt_addr(&format!("{:#010X}", exp.name_rva)),
+            fmt_dim(&format!("({})", exp.dll_name))
+        ),
+    );
+    print_field(
+        Some(exp.offset + 16),
+        &f,
+        "Base",
+        KW,
+        fmt_value(&format!("{}", exp.base)),
+    );
+    print_field(
+        Some(exp.offset + 20),
+        &f,
+        "NumberOfFunctions",
+        KW,
+        fmt_value(&format!("{}", exp.number_of_functions)),
+    );
+    print_field(
+        Some(exp.offset + 24),
+        &f,
+        "NumberOfNames",
+        KW,
+        fmt_value(&format!("{}", exp.number_of_names)),
+    );
+    print_field(
+        Some(exp.offset + 28),
+        &f,
+        "AddressOfFunctions",
+        KW,
+        fmt_addr(&format!("{:#010X}", exp.eat_rva)),
+    );
+    print_field(
+        Some(exp.offset + 32),
+        &f,
+        "AddressOfNames",
+        KW,
+        fmt_addr(&format!("{:#010X}", exp.name_ptr_rva)),
+    );
+    print_field(
+        Some(exp.offset + 36),
+        last,
+        "AddressOfNameOrdinals",
+        KW,
+        fmt_addr(&format!("{:#010X}", exp.name_ord_rva)),
     );
 
+    if !has_funcs {
+        return;
+    }
+
+    let n = exp.functions.len();
     let digit = digit_count(n);
     for (i, func) in exp.functions.iter().enumerate() {
         let is_last_fn = i + 1 >= n;
