@@ -1,0 +1,79 @@
+```
+ _   _                                              _
+| | | |_ ____      ___ __ __ _ _ __  _ __   ___  __| |
+| | | | '_ \ \ /\ / / '__/ _` | '_ \| '_ \ / _ \/ _` |
+| |_| | | | \ V  V /| | | (_| | |_) | |_) |  __/ (_| |
+ \___/|_| |_|\_/\_/ |_|  \__,_| .__/| .__/ \___|\__,_|
+                              |_|   |_|
+
+[FILE] C:\Windows\System32\version.dll
+              ├─ DOS Header
+[0x00000000]  │  ├─ e_magic                          0x5A4D
+...(省略)
+[0x0000001C]  │  ├─ e_res[0..3]                      0x0000 (all zero)
+[0x00000024]  │  ├─ e_oemid                          0x0000
+...(省略)
+              │
+              ├─ COFF File Header
+[0x000000F4]  │  ├─ Machine                          IMAGE_FILE_MACHINE_AMD64 (0x8664)
+[0x000000F6]  │  ├─ NumberOfSections                 6
+[0x000000F8]  │  ├─ TimeDateStamp                    0x90A1B58A
+[0x000000FC]  │  ├─ PointerToSymbolTable             0x00000000
+[0x00000100]  │  ├─ NumberOfSymbols                  0
+[0x00000104]  │  ├─ SizeOfOptionalHeader             0x00F0
+[0x00000106]  │  └─ Characteristics                  0x2022
+              │     ├─ [x] IMAGE_FILE_EXECUTABLE_IMAGE (0x00000002)
+              │     ├─ [x] IMAGE_FILE_LARGE_ADDRESS_AWARE (0x00000020)
+              │     └─ [x] IMAGE_FILE_DLL (0x00002000)
+              │        (12 flags not set)
+              │
+              ├─ Optional Header
+[0x00000108]  │  ├─ Magic                            PE32+ (0x020B)
+...(省略)
+[0x0000014E]  │  ├─ DllCharacteristics               0x4160
+              │  │  ├─ [x] IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA (0x00000020)
+              │  │  ├─ [x] IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE (0x00000040)
+              │  │  ├─ [x] IMAGE_DLLCHARACTERISTICS_NX_COMPAT (0x00000100)
+              │  │  └─ [x] IMAGE_DLLCHARACTERISTICS_GUARD_CF (0x00004000)
+              │  │     (7 flags not set)
+              │  │
+              │  └─ Data Directories (9 active, 7 empty)
+[0x00000178]  │     ├─ [00] Export Table             RVA: 0x00004E70  Size: 0x00000260
+[0x00000180]  │     ├─ [01] Import Table             RVA: 0x000050D0  Size: 0x000001CC
+[0x00000188]  │     ├─ [02] Resource Table           RVA: 0x00008000  Size: 0x00000428
+...(省略)
+              │
+              ├─ Section Headers (6 sections)
+[0x000001F8]  │  ├─ .text
+[0x00000200]  │  │  ├─ VirtualSize                   0x00002A50
+[0x00000204]  │  │  ├─ VirtualAddress                0x00001000
+[0x00000208]  │  │  ├─ SizeOfRawData                 0x00003000
+[0x0000020C]  │  │  ├─ PointerToRawData              0x00001000
+[0x0000021C]  │  │  └─ Characteristics               0x60000020
+              │  │     ├─ [x] IMAGE_SCN_CNT_CODE (0x00000020)
+              │  │     ├─ [x] IMAGE_SCN_MEM_EXECUTE (0x20000000)
+              │  │     └─ [x] IMAGE_SCN_MEM_READ (0x40000000)
+              │  │        (18 flags not set)
+...(省略)
+              │
+              ├─ Export Table
+[0x00004E70]  │  ├─ Characteristics                  0x00000000
+[0x00004E74]  │  ├─ TimeDateStamp                    0x90A1B58A
+...(省略)
+[0x00004E98]  │  ├─ [01] GetFileVersionInfoA RVA: 0x00001EE0
+[0x00004E9C]  │  ├─ [02] GetFileVersionInfoByHandle RVA: 0x000023E0
+...(省略)
+              │
+              └─ Import Table (22 DLLs)
+[0x000050D0]     ├─ msvcrt.dll (9 functions)
+[0x00005538]     │  ├─ [0x005E] __C_specific_handler
+[0x00005540]     │  ├─ [0x0189] _initterm
+[0x00005548]     │  ├─ [0x0493] malloc
+[0x00005550]     │  ├─ [0x0459] free
+[0x00005558]     │  ├─ [0x00B7] _amsg_exit
+[0x00005560]     │  ├─ [0x005A] _XcptFilter
+[0x00005568]     │  ├─ [0x0376] _vsnwprintf
+[0x00005570]     │  ├─ [0x0370] _vsnprintf
+[0x00005578]     │  └─ [0x049E] memcmp
+...(省略)
+```

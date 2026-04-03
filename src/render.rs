@@ -109,3 +109,58 @@ pub fn print_section_header(connector: &str, name: &str) {
 pub fn print_separator(tree_chars: &str) {
     println!("              {}", fmt_tree(tree_chars));
 }
+
+/// フィールド配下のフラグを出力する。
+/// all_flags: true なら全フラグ表示、false ならセット済みフラグのみ + "(N flags not set)" 注釈。
+pub fn print_flags(
+    flags: &[(u32, &str)],
+    value: u32,
+    pfx_mid: &str,
+    pfx_last: &str,
+    pfx_annotation: &str,
+    all_flags: bool,
+) {
+    if all_flags {
+        let n = flags.len();
+        for (i, &(flag, name)) in flags.iter().enumerate() {
+            let pfx = if i + 1 < n { pfx_mid } else { pfx_last };
+            if value & flag != 0 {
+                println!("              {}{}", fmt_tree(pfx), fmt_flag_on(name, flag));
+            } else {
+                println!(
+                    "              {}{}",
+                    fmt_tree(pfx),
+                    fmt_flag_off(name, flag)
+                );
+            }
+        }
+    } else {
+        let set: Vec<(u32, &str)> = flags
+            .iter()
+            .filter(|&&(f, _)| value & f != 0)
+            .map(|&(f, n)| (f, n))
+            .collect();
+        let unset_count = flags.len() - set.len();
+
+        if set.is_empty() {
+            println!(
+                "              {}{}",
+                fmt_tree(pfx_last),
+                fmt_dim("(no flags set)")
+            );
+        } else {
+            let n = set.len();
+            for (i, &(flag, name)) in set.iter().enumerate() {
+                let pfx = if i + 1 < n { pfx_mid } else { pfx_last };
+                println!("              {}{}", fmt_tree(pfx), fmt_flag_on(name, flag));
+            }
+            if unset_count > 0 {
+                println!(
+                    "              {}{}",
+                    fmt_tree(pfx_annotation),
+                    fmt_dim(&format!("({} flags not set)", unset_count))
+                );
+            }
+        }
+    }
+}

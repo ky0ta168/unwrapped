@@ -1,0 +1,46 @@
+<!-- TODO: 後ほど精査して実装の有無を考える -->
+
+## パース済みだが未表示の情報
+
+### Optional Header（未表示フィールド）
+
+| フィールド | オフセット(PE32) | オフセット(PE32+) | 説明 |
+|-----------|----------------|-----------------|------|
+| `SizeOfStackReserve` | +60 | +56 | スタック予約サイズ |
+| `SizeOfStackCommit`  | +64 | +64 | スタック初期コミットサイズ |
+| `SizeOfHeapReserve`  | +68 | +72 | ヒープ予約サイズ |
+| `SizeOfHeapCommit`   | +72 | +80 | ヒープ初期コミットサイズ |
+| `LoaderFlags`        | +76 | +88 | 予約済み（常に0） |
+| `NumberOfRvaAndSizes`| +80 | +92 | Data Directory の有効エントリ数 |
+
+### Section Headers（未表示フィールド）
+
+| フィールド | オフセット | 説明 |
+|-----------|-----------|------|
+| `PointerToRelocations`  | +24 | COFF リロケーションテーブルへのファイルオフセット |
+| `PointerToLinenumbers`  | +28 | 行番号テーブルへのファイルオフセット |
+| `NumberOfRelocations`   | +32 | リロケーションエントリ数 |
+| `NumberOfLinenumbers`   | +34 | 行番号エントリ数 |
+
+### Import Table（未表示フィールド）
+
+各 `IMAGE_IMPORT_DESCRIPTOR` の未表示フィールド：
+
+| フィールド | オフセット | 説明 |
+|-----------|-----------|------|
+| `TimeDateStamp` | +4 | 0=unbound、`0xFFFFFFFF`=bound（NewImport形式） |
+| `ForwarderChain` | +8 | フォワードチェーンの先頭インデックス |
+
+### Export Table（未デコードの情報）
+
+- **フォワードエクスポート**: 関数の RVA がエクスポートディレクトリ範囲内を指す場合、その RVA は関数ではなく転送先を示す文字列（例: `NTDLL.RtlAllocateHeap`）。現在は RVA をそのまま表示しており、転送先文字列を読んでいない。
+
+---
+
+### エントロピー判定しきい値
+
+| 値 | 判定 | 色 |
+|----|------|----|
+| 〜6.0 | `[normal]` | 緑 |
+| 6.0〜7.0 | `[^ elevated]` | 黄 |
+| 7.0〜 | `[!! HIGH - possibly packed]` | 赤 |

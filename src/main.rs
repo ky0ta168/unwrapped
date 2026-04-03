@@ -1,28 +1,15 @@
-mod color;
-mod dump;
+mod cli;
 mod pe;
+mod render;
 
-use crate::color::fmt_tree;
+use crate::render::fmt_tree;
 use colored::Colorize;
-use std::env;
 use std::path::Path;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    let all_flags = args.iter().any(|a| a == "--all-flags");
-    let positional: Vec<&String> = args
-        .iter()
-        .skip(1)
-        .filter(|a| !a.starts_with("--"))
-        .collect();
-
-    if positional.is_empty() {
-        eprintln!("Usage: unwrapped [--all-flags] <file>");
-        std::process::exit(1);
-    }
-
-    let file_path = positional[0];
+    let args = cli::Args::parse();
+    let all_flags = args.all_flags;
+    let file_path = &args.file_path;
 
     let pe = match pe::PeFile::open(Path::new(file_path)) {
         Ok(pe) => pe,
@@ -50,33 +37,33 @@ fn main() {
     let has_export = export.is_some();
     let has_import = import.is_some();
 
-    dump::dump_dos_header(&dos);
+    pe::dump_dos_header(&dos);
     println!("              {}", fmt_tree("│"));
 
-    dump::dump_coff_header(&pe.coff_header(), e_lfanew + 4, all_flags);
+    pe::dump_coff_header(&pe.coff_header(), e_lfanew + 4, all_flags);
     println!("              {}", fmt_tree("│"));
 
     let (dd_base, dirs) = pe.data_directories();
-    dump::dump_optional_header(
+    pe::dump_optional_header(
         &pe.optional_header(),
         e_lfanew + 4 + 20,
         dd_base,
         &dirs,
         all_flags,
-        false, // Optional Header は最後ではない（Section Headers が後続）
+        false,
     );
     println!("              {}", fmt_tree("│"));
 
     let (sh_base, sections) = pe.section_headers();
-    dump::dump_section_headers(sh_base, &sections, all_flags, !has_export && !has_import);
+    pe::dump_section_headers(sh_base, &sections, all_flags, !has_export && !has_import);
 
     if let Some(exp) = export {
         println!("              {}", fmt_tree("│"));
-        dump::dump_export_table(&exp, !has_import);
+        pe::dump_export_table(&exp, !has_import);
     }
 
     if let Some(descriptors) = import {
         println!("              {}", fmt_tree("│"));
-        dump::dump_import_table(&descriptors);
+        pe::dump_import_table(&descriptors);
     }
 }
