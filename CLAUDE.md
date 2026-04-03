@@ -21,12 +21,12 @@
 
 ✅ ステップ 1〜10 完了済み
 
-| # | 完了 | ステップ名 | 実装内容 | 確認内容 |
-|---|------|-----------|---------|---------|
-| 11 | [ ] | Base Relocations パース | ブロック / エントリ / Type / Offset 取得 | ブロックごとのVirtualAddress・Type・Offsetをカラー表示 |
-| 12 | [ ] | Debug Directory パース | CodeViewのPDBパス / GUID / Age 取得 | PDBパス・GUID・Ageをカラー表示 |
-| 13 | [ ] | Section Entropy 計算 | エントロピー計算 / `[normal]` / `[^ elevated]` / `[!! HIGH]` 判定 | セクションごとのエントロピー値と判定結果をカラー表示 |
-| 14 | [ ] | CLIフラグの実装 | `-h` / `-S` / `-s` / `-r` / `-d` / `-n` / `-a` 実装 | 各フラグで対応する項目のみ表示される |
+| # | ステップ名 | 実装内容 | 確認内容 |
+|----|-----------|---------|---------|
+| 11 | Base Relocations パース | ブロック / エントリ / Type / Offset 取得 | ブロックごとのVirtualAddress・Type・Offsetをカラー表示 |
+| 12 | Debug Directory パース | CodeViewのPDBパス / GUID / Age 取得 | PDBパス・GUID・Ageをカラー表示 |
+| 13 | Section Entropy 計算 | エントロピー計算 / `[normal]` / `[^ elevated]` / `[!! HIGH]` 判定 | セクションごとのエントロピー値と判定結果をカラー表示 |
+| 14 | CLIフラグの実装 | `-h` / `-S` / `-s` / `-r` / `-d` / `-n` / `-a` 実装 | 各フラグで対応する項目のみ表示される |
 
 ---
 
