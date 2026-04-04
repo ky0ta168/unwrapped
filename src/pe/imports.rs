@@ -11,6 +11,8 @@ pub struct ImportFunction {
 pub struct ImportDescriptor {
     pub offset: usize,
     pub dll_name: String,
+    pub time_date_stamp: u32,
+    pub forwarder_chain: u32,
     pub functions: Vec<ImportFunction>,
 }
 
@@ -37,6 +39,8 @@ impl PeFile {
             }
 
             let original_first_thunk = read_u32(d, off);
+            let time_date_stamp = read_u32(d, off + 4);
+            let forwarder_chain = read_u32(d, off + 8);
             let name_rva = read_u32(d, off + 12);
             let first_thunk = read_u32(d, off + 16);
 
@@ -118,6 +122,8 @@ impl PeFile {
             descriptors.push(ImportDescriptor {
                 offset: off,
                 dll_name,
+                time_date_stamp,
+                forwarder_chain,
                 functions,
             });
             i += 1;
@@ -162,6 +168,56 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
             fmt_tree(&dll_conn),
             fmt_identifier(&desc.dll_name),
             fmt_dim(&format!("({} functions)", desc.functions.len()))
+        );
+
+        // TimeDateStamp
+        let tds_label = format!("{:<16}", "TimeDateStamp");
+        let tds_value = match desc.time_date_stamp {
+            0 => format!(
+                "{} {}",
+                fmt_value(&format!("0x{:08X}", 0u32)),
+                fmt_dim("(not bound)")
+            ),
+            0xFFFF_FFFF => format!(
+                "{} {}",
+                fmt_value(&format!("0x{:08X}", 0xFFFF_FFFFu32)),
+                fmt_dim("(bound)")
+            ),
+            v => format!("{}", fmt_value(&format!("0x{:08X}", v))),
+        };
+        println!(
+            "{}{}{}  {}",
+            fmt_offset(desc.offset + 4),
+            fmt_tree(&format!("{}├─ ", dll_pc)),
+            fmt_field(&tds_label),
+            tds_value
+        );
+
+        // ForwarderChain
+        let fc_label = format!("{:<16}", "ForwarderChain");
+        let fc_value = match desc.forwarder_chain {
+            0xFFFF_FFFF => format!(
+                "{} {}",
+                fmt_value(&format!("0x{:08X}", 0xFFFF_FFFFu32)),
+                fmt_dim("(no forwarders)")
+            ),
+            0 => format!(
+                "{} {}",
+                fmt_value(&format!("0x{:08X}", 0u32)),
+                fmt_dim("(no forwarders)")
+            ),
+            v => format!(
+                "{} {}",
+                fmt_value(&format!("0x{:08X}", v)),
+                fmt_dim("(forwarder chain)")
+            ),
+        };
+        println!(
+            "{}{}{}  {}",
+            fmt_offset(desc.offset + 8),
+            fmt_tree(&format!("{}├─ ", dll_pc)),
+            fmt_field(&fc_label),
+            fc_value
         );
 
         let m = desc.functions.len();
