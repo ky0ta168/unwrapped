@@ -32,12 +32,15 @@ fn main() {
     let dos = pe.dos_header();
     let e_lfanew = dos.e_lfanew as usize;
 
+    let (sh_base, sections) = pe.section_headers();
     let export = pe.export_table();
     let import = pe.import_table();
     let reloc = pe.relocation_table();
+    let debug = pe.debug_directory(&sections);
     let has_export = export.is_some();
     let has_import = import.is_some();
     let has_reloc = reloc.is_some();
+    let has_debug = debug.is_some();
 
     pe::dump_dos_header(&dos);
     println!("              {}", fmt_tree("│"));
@@ -56,26 +59,30 @@ fn main() {
     );
     println!("              {}", fmt_tree("│"));
 
-    let (sh_base, sections) = pe.section_headers();
     pe::dump_section_headers(
         sh_base,
         &sections,
         all_flags,
-        !has_export && !has_import && !has_reloc,
+        !has_export && !has_import && !has_reloc && !has_debug,
     );
 
     if let Some(exp) = export {
         println!("              {}", fmt_tree("│"));
-        pe::dump_export_table(&exp, !has_import && !has_reloc);
+        pe::dump_export_table(&exp, !has_import && !has_reloc && !has_debug);
     }
 
     if let Some(descriptors) = import {
         println!("              {}", fmt_tree("│"));
-        pe::dump_import_table(&descriptors, !has_reloc);
+        pe::dump_import_table(&descriptors, !has_reloc && !has_debug);
     }
 
     if let Some(blocks) = reloc {
         println!("              {}", fmt_tree("│"));
-        pe::dump_relocation_table(&blocks);
+        pe::dump_relocation_table(&blocks, !has_debug);
+    }
+
+    if let Some((entries, cv_infos)) = debug {
+        println!("              {}", fmt_tree("│"));
+        pe::dump_debug_directory(&entries, &cv_infos, true);
     }
 }

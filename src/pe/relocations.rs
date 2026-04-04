@@ -87,12 +87,14 @@ impl PeFile {
     }
 }
 
-pub fn dump_relocation_table(blocks: &[RelocationBlock]) {
+pub fn dump_relocation_table(blocks: &[RelocationBlock], is_last: bool) {
     let total_entries: usize = blocks.iter().map(|b| b.entries.len()).sum();
+    let connector = if is_last { "└─ " } else { "├─ " };
+    let pc = if is_last { "   " } else { "│  " };
 
     println!(
         "              {}{} {}",
-        fmt_tree("└─ "),
+        fmt_tree(connector),
         fmt_section("Base Relocations"),
         fmt_dim(&format!(
             "({} blocks, {} entries)",
@@ -105,11 +107,15 @@ pub fn dump_relocation_table(blocks: &[RelocationBlock]) {
     for (i, block) in blocks.iter().enumerate() {
         let is_last_block = i + 1 >= n;
         let blk_conn = if is_last_block {
-            "   └─ "
+            format!("{}└─ ", pc)
         } else {
-            "   ├─ "
+            format!("{}├─ ", pc)
         };
-        let blk_pc = if is_last_block { "      " } else { "   │  " };
+        let blk_pc = if is_last_block {
+            format!("{}   ", pc)
+        } else {
+            format!("{}│  ", pc)
+        };
 
         let non_abs = block
             .entries
@@ -121,7 +127,7 @@ pub fn dump_relocation_table(blocks: &[RelocationBlock]) {
         println!(
             "{}{}{} {} {}  {} {}",
             fmt_offset(block.file_offset),
-            fmt_tree(blk_conn),
+            fmt_tree(&blk_conn),
             fmt_label("VA:"),
             fmt_addr(&format!("{:#010X}", block.virtual_address)),
             fmt_dim(&format!("Size: {:#010X}", block.size_of_block)),

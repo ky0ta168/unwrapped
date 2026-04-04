@@ -2,6 +2,7 @@ use std::fs;
 use std::path::Path;
 
 pub mod coff;
+pub mod debug;
 pub mod dos_header;
 pub mod exports;
 pub mod imports;
@@ -10,6 +11,7 @@ pub mod relocations;
 pub mod sections;
 
 pub use coff::dump_coff_header;
+pub use debug::dump_debug_directory;
 pub use dos_header::dump_dos_header;
 pub use exports::dump_export_table;
 pub use imports::dump_import_table;
