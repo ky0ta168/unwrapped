@@ -23,9 +23,12 @@
 
 | # | ステップ名 | 実装内容 | 確認内容 |
 |----|-----------|---------|---------|
-| 12 | Debug Directory パース | CodeViewのPDBパス / GUID / Age 取得 | PDBパス・GUID・Ageをカラー表示 |
-| 13 | Section Entropy 計算 | エントロピー計算 / `[normal]` / `[^ elevated]` / `[!! HIGH]` 判定 | セクションごとのエントロピー値と判定結果をカラー表示 |
-| 14 | CLIフラグの実装 | `-h` / `-S` / `-s` / `-r` / `-d` / `-n` / `-a` 実装 | 各フラグで対応する項目のみ表示される |
+| 12 | Optional Header・Section Header 追加フィールド表示 | Optional Header: `SizeOfStackReserve` / `SizeOfStackCommit` / `SizeOfHeapReserve` / `SizeOfHeapCommit` / `LoaderFlags` / `NumberOfRvaAndSizes` を表示。Section Header: `PointerToRelocations` / `PointerToLinenumbers` / `NumberOfRelocations` / `NumberOfLinenumbers` を表示 | 各フィールドがカラー表示される |
+| 13 | Import Table 追加フィールド表示 | `IMAGE_IMPORT_DESCRIPTOR` の `TimeDateStamp` / `ForwarderChain` を表示 | バインド状態・フォワードチェーン情報が表示される |
+| 14 | Export Table フォワードエクスポート対応 | RVAがエクスポートディレクトリ範囲内の場合、転送先文字列（例: `NTDLL.RtlAllocateHeap`）を読んで表示 | フォワードエクスポートが転送先文字列で正しく表示される |
+| 15 | Debug Directory パース | CodeViewのPDBパス / GUID / Age 取得 | PDBパス・GUID・Ageをカラー表示 |
+| 16 | Section Entropy 計算 | エントロピー計算 / `[normal]` / `[^ elevated]` / `[!! HIGH]` 判定 | セクションごとのエントロピー値と判定結果をカラー表示 |
+| 17 | CLIフラグの実装 | `-h` / `-S` / `-s` / `-r` / `-d` / `-n` / `-a` 実装 | 各フラグで対応する項目のみ表示される |
 
 ---
 
