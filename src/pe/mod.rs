@@ -6,6 +6,7 @@ pub mod dos_header;
 pub mod exports;
 pub mod imports;
 pub mod optional;
+pub mod relocations;
 pub mod sections;
 
 pub use coff::dump_coff_header;
@@ -13,6 +14,7 @@ pub use dos_header::dump_dos_header;
 pub use exports::dump_export_table;
 pub use imports::dump_import_table;
 pub use optional::dump_optional_header;
+pub use relocations::dump_relocation_table;
 pub use sections::{SectionHeader, dump_section_headers};
 
 pub struct PeFile {

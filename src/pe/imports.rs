@@ -131,11 +131,14 @@ impl PeFile {
     }
 }
 
-pub fn dump_import_table(descriptors: &[ImportDescriptor]) {
+pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
+    let connector = if is_last { "└─ " } else { "├─ " };
+    let pc = if is_last { "   " } else { "│  " };
+
     let n = descriptors.len();
     println!(
         "              {}{} {}",
-        fmt_tree("└─ "),
+        fmt_tree(connector),
         fmt_section("Import Table"),
         fmt_dim(&format!("({} DLLs)", n))
     );
@@ -143,16 +146,20 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor]) {
     for (i, desc) in descriptors.iter().enumerate() {
         let is_last_dll = i + 1 >= n;
         let dll_conn = if is_last_dll {
-            "   └─ "
+            format!("{}└─ ", pc)
         } else {
-            "   ├─ "
+            format!("{}├─ ", pc)
         };
-        let dll_pc = if is_last_dll { "      " } else { "   │  " };
+        let dll_pc = if is_last_dll {
+            format!("{}   ", pc)
+        } else {
+            format!("{}│  ", pc)
+        };
 
         println!(
             "{}{}{} {}",
             fmt_offset(desc.offset),
-            fmt_tree(dll_conn),
+            fmt_tree(&dll_conn),
             fmt_identifier(&desc.dll_name),
             fmt_dim(&format!("({} functions)", desc.functions.len()))
         );
