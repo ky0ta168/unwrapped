@@ -8,6 +8,7 @@ pub struct ExportFunction {
     pub ordinal: u32,
     pub name: Option<String>,
     pub rva: u32,
+    pub forwarder: Option<String>,
 }
 
 pub struct ExportTable {
@@ -77,6 +78,9 @@ impl PeFile {
             }
         }
 
+        let export_dir_start = export_dir.virtual_address;
+        let export_dir_end = export_dir_start + export_dir.size;
+
         let mut functions = Vec::new();
         for idx in 0..number_of_functions as usize {
             let eat_offset = eat_base + idx * 4;
@@ -87,11 +91,17 @@ impl PeFile {
             if rva == 0 {
                 continue;
             }
+            let forwarder = if rva >= export_dir_start && rva < export_dir_end {
+                rva_to_file_offset(rva, &sections).map(|o| super::read_cstring(d, o))
+            } else {
+                None
+            };
             functions.push(ExportFunction {
                 eat_offset,
                 ordinal: base + idx as u32,
                 name: name_map.remove(&idx),
                 rva,
+                forwarder,
             });
         }
 
@@ -238,14 +248,26 @@ pub fn dump_export_table(exp: &ExportTable, is_last: bool) {
             None => fmt_dim("(unnamed)").to_string(),
         };
 
-        println!(
-            "{}{}{}{} {} {}",
-            fmt_offset(func.eat_offset),
-            fmt_tree(&fn_conn),
-            fmt_dim(&format!("[{:0>width$}] ", func.ordinal, width = digit)),
-            name_str,
-            fmt_label("RVA:"),
-            fmt_addr(&format!("{:#010X}", func.rva))
-        );
+        match &func.forwarder {
+            Some(fwd) => println!(
+                "{}{}{}{} {} {} {}",
+                fmt_offset(func.eat_offset),
+                fmt_tree(&fn_conn),
+                fmt_dim(&format!("[{:0>width$}] ", func.ordinal, width = digit)),
+                name_str,
+                fmt_label("->"),
+                fmt_identifier(fwd),
+                fmt_dim(&format!("(forwarder, RVA: {:#010X})", func.rva))
+            ),
+            None => println!(
+                "{}{}{}{} {} {}",
+                fmt_offset(func.eat_offset),
+                fmt_tree(&fn_conn),
+                fmt_dim(&format!("[{:0>width$}] ", func.ordinal, width = digit)),
+                name_str,
+                fmt_label("RVA:"),
+                fmt_addr(&format!("{:#010X}", func.rva))
+            ),
+        }
     }
 }
