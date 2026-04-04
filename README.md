@@ -20,3 +20,7 @@ unwrapped [--all-flags] <file>
 | オプション | 説明 |
 |------------|------|
 | `--all-flags` | Characteristics / DllCharacteristics の未セットフラグも展開表示する |
+
+## デモ
+
+![Demo](./docs/demo.png)
