@@ -28,6 +28,12 @@ pub struct OptionalHeader {
     pub check_sum: u32,
     pub subsystem: u16,
     pub dll_characteristics: u16,
+    pub size_of_stack_reserve: u64,
+    pub size_of_stack_commit: u64,
+    pub size_of_heap_reserve: u64,
+    pub size_of_heap_commit: u64,
+    pub loader_flags: u32,
+    pub number_of_rva_and_sizes: u32,
 }
 
 pub const SUBSYSTEMS: &[(u16, &str)] = &[
@@ -91,14 +97,42 @@ impl PeFile {
         let magic = read_u16(d, base);
         let is_pe32plus = self.is_pe32plus();
 
-        let (base_of_data, image_base, subsystem_off, dll_char_off) = if is_pe32plus {
-            (None, read_u64(d, base + 24), base + 68, base + 70)
+        let (
+            base_of_data,
+            image_base,
+            subsystem_off,
+            dll_char_off,
+            stack_reserve,
+            stack_commit,
+            heap_reserve,
+            heap_commit,
+            loader_flags_off,
+            rva_sizes_off,
+        ) = if is_pe32plus {
+            (
+                None,
+                read_u64(d, base + 24),
+                base + 68,
+                base + 70,
+                read_u64(d, base + 72),
+                read_u64(d, base + 80),
+                read_u64(d, base + 88),
+                read_u64(d, base + 96),
+                base + 104,
+                base + 108,
+            )
         } else {
             (
                 Some(read_u32(d, base + 24)),
                 read_u32(d, base + 28) as u64,
                 base + 68,
                 base + 70,
+                read_u32(d, base + 72) as u64,
+                read_u32(d, base + 76) as u64,
+                read_u32(d, base + 80) as u64,
+                read_u32(d, base + 84) as u64,
+                base + 88,
+                base + 92,
             )
         };
 
@@ -127,6 +161,12 @@ impl PeFile {
             check_sum: read_u32(d, base + 64),
             subsystem: read_u16(d, subsystem_off),
             dll_characteristics: read_u16(d, dll_char_off),
+            size_of_stack_reserve: stack_reserve,
+            size_of_stack_commit: stack_commit,
+            size_of_heap_reserve: heap_reserve,
+            size_of_heap_commit: heap_commit,
+            loader_flags: read_u32(d, loader_flags_off),
+            number_of_rva_and_sizes: read_u32(d, rva_sizes_off),
         }
     }
 
@@ -364,6 +404,75 @@ pub fn dump_optional_header(
         &flgl,
         &flga,
         all_flags,
+    );
+
+    let (ssr_off, ssc_off, shr_off, shc_off, lf_off, nrs_off) = if is_pe32plus {
+        (
+            base + 72,
+            base + 80,
+            base + 88,
+            base + 96,
+            base + 104,
+            base + 108,
+        )
+    } else {
+        (
+            base + 72,
+            base + 76,
+            base + 80,
+            base + 84,
+            base + 88,
+            base + 92,
+        )
+    };
+
+    let size_fmt = if is_pe32plus { 18 } else { 10 };
+    let stack_reserve_str = format!("{:#0width$X}", opt.size_of_stack_reserve, width = size_fmt);
+    let stack_commit_str = format!("{:#0width$X}", opt.size_of_stack_commit, width = size_fmt);
+    let heap_reserve_str = format!("{:#0width$X}", opt.size_of_heap_reserve, width = size_fmt);
+    let heap_commit_str = format!("{:#0width$X}", opt.size_of_heap_commit, width = size_fmt);
+
+    print_field(
+        Some(ssr_off),
+        &f,
+        "SizeOfStackReserve",
+        KW,
+        fmt_value(&stack_reserve_str),
+    );
+    print_field(
+        Some(ssc_off),
+        &f,
+        "SizeOfStackCommit",
+        KW,
+        fmt_value(&stack_commit_str),
+    );
+    print_field(
+        Some(shr_off),
+        &f,
+        "SizeOfHeapReserve",
+        KW,
+        fmt_value(&heap_reserve_str),
+    );
+    print_field(
+        Some(shc_off),
+        &f,
+        "SizeOfHeapCommit",
+        KW,
+        fmt_value(&heap_commit_str),
+    );
+    print_field(
+        Some(lf_off),
+        &f,
+        "LoaderFlags",
+        KW,
+        fmt_value(&format!("{:#010X}", opt.loader_flags)),
+    );
+    print_field(
+        Some(nrs_off),
+        &f,
+        "NumberOfRvaAndSizes",
+        KW,
+        fmt_value(&format!("{}", opt.number_of_rva_and_sizes)),
     );
 
     print_separator(&sep);

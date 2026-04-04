@@ -4,7 +4,6 @@
 
 - 入力：PEファイル（`.exe` / `.dll`）
 - 言語：Rust
-- プロジェクト名の由来：`unwrap`（開梱+Rust要素）+ `pe`（PE要素）+ `d`（Dump要素）
 - `colored` クレート（カラー表示）
 
 ---
@@ -19,11 +18,10 @@
 
 ## 実装ステップ
 
-✅ ステップ 1〜11 完了済み
+✅ ステップ 1〜12 完了済み
 
 | # | ステップ名 | 実装内容 | 確認内容 |
 |----|-----------|---------|---------|
-| 12 | Optional Header・Section Header 追加フィールド表示 | Optional Header: `SizeOfStackReserve` / `SizeOfStackCommit` / `SizeOfHeapReserve` / `SizeOfHeapCommit` / `LoaderFlags` / `NumberOfRvaAndSizes` を表示。Section Header: `PointerToRelocations` / `PointerToLinenumbers` / `NumberOfRelocations` / `NumberOfLinenumbers` を表示 | 各フィールドがカラー表示される |
 | 13 | Import Table 追加フィールド表示 | `IMAGE_IMPORT_DESCRIPTOR` の `TimeDateStamp` / `ForwarderChain` を表示 | バインド状態・フォワードチェーン情報が表示される |
 | 14 | Export Table フォワードエクスポート対応 | RVAがエクスポートディレクトリ範囲内の場合、転送先文字列（例: `NTDLL.RtlAllocateHeap`）を読んで表示 | フォワードエクスポートが転送先文字列で正しく表示される |
 | 15 | Debug Directory パース | CodeViewのPDBパス / GUID / Age 取得 | PDBパス・GUID・Ageをカラー表示 |

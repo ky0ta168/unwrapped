@@ -1,4 +1,4 @@
-use super::{PeFile, read_u32};
+use super::{PeFile, read_u16, read_u32};
 use crate::render::*;
 
 pub struct SectionHeader {
@@ -7,6 +7,10 @@ pub struct SectionHeader {
     pub virtual_address: u32,
     pub size_of_raw_data: u32,
     pub pointer_to_raw_data: u32,
+    pub pointer_to_relocations: u32,
+    pub pointer_to_linenumbers: u32,
+    pub number_of_relocations: u16,
+    pub number_of_linenumbers: u16,
     pub characteristics: u32,
 }
 
@@ -56,6 +60,10 @@ impl PeFile {
                 virtual_address: read_u32(d, off + 12),
                 size_of_raw_data: read_u32(d, off + 16),
                 pointer_to_raw_data: read_u32(d, off + 20),
+                pointer_to_relocations: read_u32(d, off + 24),
+                pointer_to_linenumbers: read_u32(d, off + 28),
+                number_of_relocations: read_u16(d, off + 32),
+                number_of_linenumbers: read_u16(d, off + 34),
                 characteristics: read_u32(d, off + 36),
             });
         }
@@ -140,6 +148,34 @@ pub fn dump_section_headers(
             "PointerToRawData",
             32 - 3,
             fmt_addr(&format!("{:#010X}", sec.pointer_to_raw_data)),
+        );
+        print_field(
+            Some(sec_base + 24),
+            &f_pfx,
+            "PointerToRelocations",
+            32 - 3,
+            fmt_addr(&format!("{:#010X}", sec.pointer_to_relocations)),
+        );
+        print_field(
+            Some(sec_base + 28),
+            &f_pfx,
+            "PointerToLinenumbers",
+            32 - 3,
+            fmt_addr(&format!("{:#010X}", sec.pointer_to_linenumbers)),
+        );
+        print_field(
+            Some(sec_base + 32),
+            &f_pfx,
+            "NumberOfRelocations",
+            32 - 3,
+            fmt_value(&format!("{}", sec.number_of_relocations)),
+        );
+        print_field(
+            Some(sec_base + 34),
+            &f_pfx,
+            "NumberOfLinenumbers",
+            32 - 3,
+            fmt_value(&format!("{}", sec.number_of_linenumbers)),
         );
         print_field(
             Some(sec_base + 36),
