@@ -236,14 +236,14 @@ pub fn dump_optional_header(
         &f,
         "MajorLinkerVersion",
         KW,
-        fmt_value(&format!("{}", opt.major_linker_version)),
+        fmt_num(&format!("{}", opt.major_linker_version)),
     );
     print_field(
         Some(base + 3),
         &f,
         "MinorLinkerVersion",
         KW,
-        fmt_value(&format!("{}", opt.minor_linker_version)),
+        fmt_num(&format!("{}", opt.minor_linker_version)),
     );
     print_field(
         Some(base + 4),
@@ -317,42 +317,42 @@ pub fn dump_optional_header(
         &f,
         "MajorOperatingSystemVersion",
         KW,
-        fmt_value(&format!("{}", opt.major_os_version)),
+        fmt_num(&format!("{}", opt.major_os_version)),
     );
     print_field(
         Some(base + 42),
         &f,
         "MinorOperatingSystemVersion",
         KW,
-        fmt_value(&format!("{}", opt.minor_os_version)),
+        fmt_num(&format!("{}", opt.minor_os_version)),
     );
     print_field(
         Some(base + 44),
         &f,
         "MajorImageVersion",
         KW,
-        fmt_value(&format!("{}", opt.major_image_version)),
+        fmt_num(&format!("{}", opt.major_image_version)),
     );
     print_field(
         Some(base + 46),
         &f,
         "MinorImageVersion",
         KW,
-        fmt_value(&format!("{}", opt.minor_image_version)),
+        fmt_num(&format!("{}", opt.minor_image_version)),
     );
     print_field(
         Some(base + 48),
         &f,
         "MajorSubsystemVersion",
         KW,
-        fmt_value(&format!("{}", opt.major_subsystem_version)),
+        fmt_num(&format!("{}", opt.major_subsystem_version)),
     );
     print_field(
         Some(base + 50),
         &f,
         "MinorSubsystemVersion",
         KW,
-        fmt_value(&format!("{}", opt.minor_subsystem_version)),
+        fmt_num(&format!("{}", opt.minor_subsystem_version)),
     );
     print_field(
         Some(base + 52),
@@ -472,7 +472,7 @@ pub fn dump_optional_header(
         &f,
         "NumberOfRvaAndSizes",
         KW,
-        fmt_value(&format!("{}", opt.number_of_rva_and_sizes)),
+        fmt_num(&format!("{}", opt.number_of_rva_and_sizes)),
     );
 
     print_separator(&sep);

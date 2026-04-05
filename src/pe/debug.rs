@@ -179,9 +179,10 @@ pub fn dump_debug_directory(
             .unwrap_or("UNKNOWN");
 
         println!(
-            "              {}{}",
+            "              {}{} {}",
             fmt_tree(&ec),
-            fmt_section(&format!("[{:02}] {}", i, type_name))
+            fmt_dim(&format!("[{:02}]", i)),
+            fmt_identifier(type_name)
         );
 
         print_field(
@@ -203,14 +204,14 @@ pub fn dump_debug_directory(
             &ef,
             "MajorVersion",
             KW,
-            fmt_value(&format!("{}", entry.major_version)),
+            fmt_num(&format!("{}", entry.major_version)),
         );
         print_field(
             Some(entry.file_offset + 10),
             &ef,
             "MinorVersion",
             KW,
-            fmt_value(&format!("{}", entry.minor_version)),
+            fmt_num(&format!("{}", entry.minor_version)),
         );
         print_field(
             Some(entry.file_offset + 12),
@@ -266,7 +267,7 @@ pub fn dump_debug_directory(
                 &ef,
                 "Age",
                 KW,
-                fmt_value(&format!("{}", cv.age)),
+                fmt_num(&format!("{}", cv.age)),
             );
             print_field(
                 Some(entry.pointer_to_raw_data as usize + 24),

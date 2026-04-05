@@ -166,14 +166,14 @@ pub fn dump_export_table(exp: &ExportTable, is_last: bool) {
         &f,
         "MajorVersion",
         32,
-        fmt_value(&format!("{}", exp.major_version)),
+        fmt_num(&format!("{}", exp.major_version)),
     );
     print_field(
         Some(exp.offset + 10),
         &f,
         "MinorVersion",
         32,
-        fmt_value(&format!("{}", exp.minor_version)),
+        fmt_num(&format!("{}", exp.minor_version)),
     );
     print_field(
         Some(exp.offset + 12),
@@ -191,21 +191,21 @@ pub fn dump_export_table(exp: &ExportTable, is_last: bool) {
         &f,
         "Base",
         32,
-        fmt_value(&format!("{}", exp.base)),
+        fmt_num(&format!("{}", exp.base)),
     );
     print_field(
         Some(exp.offset + 20),
         &f,
         "NumberOfFunctions",
         32,
-        fmt_value(&format!("{}", exp.number_of_functions)),
+        fmt_num(&format!("{}", exp.number_of_functions)),
     );
     print_field(
         Some(exp.offset + 24),
         &f,
         "NumberOfNames",
         32,
-        fmt_value(&format!("{}", exp.number_of_names)),
+        fmt_num(&format!("{}", exp.number_of_names)),
     );
     print_field(
         Some(exp.offset + 28),
@@ -244,7 +244,7 @@ pub fn dump_export_table(exp: &ExportTable, is_last: bool) {
         };
 
         let name_str = match &func.name {
-            Some(name) => fmt_identifier(name).to_string(),
+            Some(name) => fmt_func(name).to_string(),
             None => fmt_dim("(unnamed)").to_string(),
         };
 
@@ -255,8 +255,8 @@ pub fn dump_export_table(exp: &ExportTable, is_last: bool) {
                 fmt_tree(&fn_conn),
                 fmt_dim(&format!("[{:0>width$}] ", func.ordinal, width = digit)),
                 name_str,
-                fmt_label("->"),
-                fmt_identifier(fwd),
+                fmt_dim("→"),
+                fmt_func(fwd),
                 fmt_dim(&format!("(forwarder, RVA: {:#010X})", func.rva))
             ),
             None => println!(

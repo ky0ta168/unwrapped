@@ -82,7 +82,7 @@ pub fn dump_coff_header(coff: &CoffHeader, base: usize, all_flags: bool) {
         NL_F,
         "NumberOfSections",
         KW,
-        fmt_value(&format!("{}", coff.number_of_sections)),
+        fmt_num(&format!("{}", coff.number_of_sections)),
     );
     print_field(
         Some(base + 4),
@@ -103,7 +103,7 @@ pub fn dump_coff_header(coff: &CoffHeader, base: usize, all_flags: bool) {
         NL_F,
         "NumberOfSymbols",
         KW,
-        fmt_value(&format!("{}", coff.number_of_symbols)),
+        fmt_num(&format!("{}", coff.number_of_symbols)),
     );
     print_field(
         Some(base + 16),

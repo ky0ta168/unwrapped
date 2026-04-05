@@ -100,7 +100,7 @@ pub fn dump_section_headers(
         let name_str = if sec.name.is_empty() {
             fmt_dim("(unnamed)").to_string()
         } else {
-            fmt_identifier(&sec.name).to_string()
+            fmt_section_name(&sec.name).to_string()
         };
         println!(
             "{}{}{}",
@@ -168,14 +168,14 @@ pub fn dump_section_headers(
             &f_pfx,
             "NumberOfRelocations",
             32 - 3,
-            fmt_value(&format!("{}", sec.number_of_relocations)),
+            fmt_num(&format!("{}", sec.number_of_relocations)),
         );
         print_field(
             Some(sec_base + 34),
             &f_pfx,
             "NumberOfLinenumbers",
             32 - 3,
-            fmt_value(&format!("{}", sec.number_of_linenumbers)),
+            fmt_num(&format!("{}", sec.number_of_linenumbers)),
         );
         print_field(
             Some(sec_base + 36),

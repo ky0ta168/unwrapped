@@ -162,7 +162,7 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
         println!(
             "              {}{} {}",
             fmt_tree(&dll_conn),
-            fmt_identifier(&desc.dll_name),
+            fmt_dll(&desc.dll_name),
             fmt_dim(&format!("({} functions)", desc.functions.len())),
         );
 
@@ -170,14 +170,13 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
         let oft_conn = format!("{}├─ ", dll_pc);
         let oft_pc = format!("{}│  ", dll_pc);
         println!(
-            "{}{}{} {}",
+            "{}{}{} {} {} {}",
             fmt_offset(desc.offset),
             fmt_tree(&oft_conn),
             fmt_field("OriginalFirstThunk"),
-            fmt_dim(&format!(
-                "→ INT: {}",
-                fmt_addr(&format!("{:#010X}", desc.original_first_thunk_rva))
-            )),
+            fmt_dim("→"),
+            fmt_label("INT:"),
+            fmt_addr(&format!("{:#010X}", desc.original_first_thunk_rva))
         );
 
         // IMAGE_IMPORT_BY_NAME entries
@@ -207,7 +206,7 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
                     println!(
                         "              {}{}",
                         fmt_tree(&ibn_conn),
-                        fmt_section("IMAGE_IMPORT_BY_NAME"),
+                        fmt_section_name("IMAGE_IMPORT_BY_NAME"),
                     );
                     let hint_str = func
                         .hint
@@ -224,7 +223,7 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
                         "              {}{}  {}",
                         fmt_tree(&format!("{}└─ ", ibn_pc)),
                         fmt_field("Name"),
-                        fmt_identifier(name),
+                        fmt_func(name),
                     );
                 }
             }

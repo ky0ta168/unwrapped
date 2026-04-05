@@ -1,30 +1,53 @@
 use colored::*;
 
+/// 16進数データ値: `0x5A4D`, `0x0090`
 pub fn fmt_value(s: &str) -> ColoredString {
-    s.cyan()
+    s.bright_blue()
 }
 
+/// アドレス・RVA
 pub fn fmt_addr(s: &str) -> ColoredString {
-    s.cyan()
+    s.bright_blue()
 }
 
+/// シンボル定数名: `IMAGE_FILE_MACHINE_AMD64`
 pub fn fmt_identifier(s: &str) -> ColoredString {
     s.yellow()
 }
 
-/// 補足・注釈テキスト（暗グレー）
+/// 10進数の数値（白）: `6`, `14`, `30`
+pub fn fmt_num(s: &str) -> ColoredString {
+    s.white()
+}
+
+/// DLL名: `msvcrt.dll`
+pub fn fmt_dll(s: &str) -> ColoredString {
+    s.bright_magenta()
+}
+
+/// インポート/エクスポート関数名（明るい黄）: `malloc`, `MoveFileW`
+pub fn fmt_func(s: &str) -> ColoredString {
+    s.bright_yellow()
+}
+
+/// セクション名（水色）: `.text`, `.rdata`
+pub fn fmt_section_name(s: &str) -> ColoredString {
+    s.cyan()
+}
+
+/// 補足・注釈テキスト
 pub fn fmt_dim(s: &str) -> ColoredString {
     s.bright_black()
 }
 
-/// ツリー文字・プレフィックス（暗グレー）
+/// ツリー文字・プレフィックス
 pub fn fmt_tree(s: &str) -> ColoredString {
     s.bright_black()
 }
 
-/// セクション名（青・太字）
+/// セクションヘッダラベル（水色）
 pub fn fmt_section(s: &str) -> ColoredString {
-    s.blue().bold()
+    s.cyan().bold()
 }
 
 /// フィールド名（白）
@@ -32,7 +55,7 @@ pub fn fmt_field(s: &str) -> ColoredString {
     s.white()
 }
 
-/// ファイルオフセット列（暗グレー、"[0xXXXXXXXX]  " 形式）
+/// ファイルオフセット列（"[0xXXXXXXXX]  " 形式）
 pub fn fmt_offset(o: usize) -> String {
     format!("[{:#010X}]  ", o).bright_black().to_string()
 }
@@ -52,7 +75,7 @@ pub fn fmt_flag_on(name: &str, mask: u32) -> String {
     )
 }
 
-/// セットされていないフラグ行（暗グレー）: "[ ] NAME (0xXXXXXXXX)"
+/// セットされていないフラグ行: "[ ] NAME (0xXXXXXXXX)"
 pub fn fmt_flag_off(name: &str, mask: u32) -> String {
     format!(
         "{} {} {}",
