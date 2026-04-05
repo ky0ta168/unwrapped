@@ -2,7 +2,6 @@ use super::{PeFile, read_u16, read_u32, read_u64, rva_to_file_offset};
 use crate::render::*;
 
 pub struct ImportFunction {
-    pub thunk_offset: usize,
     pub hint: Option<u16>,
     pub name: Option<String>,
     pub ordinal: Option<u16>,
@@ -11,6 +10,7 @@ pub struct ImportFunction {
 pub struct ImportDescriptor {
     pub offset: usize,
     pub dll_name: String,
+    pub original_first_thunk_rva: u32,
     pub time_date_stamp: u32,
     pub forwarder_chain: u32,
     pub functions: Vec<ImportFunction>,
@@ -76,7 +76,6 @@ impl PeFile {
                         }
                         if entry & 0x8000_0000_0000_0000 != 0 {
                             functions.push(ImportFunction {
-                                thunk_offset: thunk_off,
                                 hint: None,
                                 name: None,
                                 ordinal: Some((entry & 0xFFFF) as u16),
@@ -86,7 +85,6 @@ impl PeFile {
                             && ibn_off + 2 <= d.len()
                         {
                             functions.push(ImportFunction {
-                                thunk_offset: thunk_off,
                                 hint: Some(read_u16(d, ibn_off)),
                                 name: Some(super::read_cstring(d, ibn_off + 2)),
                                 ordinal: None,
@@ -99,7 +97,6 @@ impl PeFile {
                         }
                         if entry & 0x8000_0000 != 0 {
                             functions.push(ImportFunction {
-                                thunk_offset: thunk_off,
                                 hint: None,
                                 name: None,
                                 ordinal: Some((entry & 0xFFFF) as u16),
@@ -108,7 +105,6 @@ impl PeFile {
                             && ibn_off + 2 <= d.len()
                         {
                             functions.push(ImportFunction {
-                                thunk_offset: thunk_off,
                                 hint: Some(read_u16(d, ibn_off)),
                                 name: Some(super::read_cstring(d, ibn_off + 2)),
                                 ordinal: None,
@@ -122,6 +118,7 @@ impl PeFile {
             descriptors.push(ImportDescriptor {
                 offset: off,
                 dll_name,
+                original_first_thunk_rva: thunk_rva,
                 time_date_stamp,
                 forwarder_chain,
                 functions,
@@ -163,12 +160,75 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
         };
 
         println!(
-            "{}{}{} {}",
-            fmt_offset(desc.offset),
+            "              {}{} {}",
             fmt_tree(&dll_conn),
             fmt_identifier(&desc.dll_name),
-            fmt_dim(&format!("({} functions)", desc.functions.len()))
+            fmt_dim(&format!("({} functions)", desc.functions.len())),
         );
+
+        // OriginalFirstThunk → INT
+        let oft_conn = format!("{}├─ ", dll_pc);
+        let oft_pc = format!("{}│  ", dll_pc);
+        println!(
+            "{}{}{} {}",
+            fmt_offset(desc.offset),
+            fmt_tree(&oft_conn),
+            fmt_field("OriginalFirstThunk"),
+            fmt_dim(&format!(
+                "→ INT: {}",
+                fmt_addr(&format!("{:#010X}", desc.original_first_thunk_rva))
+            )),
+        );
+
+        // IMAGE_IMPORT_BY_NAME entries
+        let m = desc.functions.len();
+        for (j, func) in desc.functions.iter().enumerate() {
+            let is_last_fn = j + 1 >= m;
+            let ibn_conn = if is_last_fn {
+                format!("{}└─ ", oft_pc)
+            } else {
+                format!("{}├─ ", oft_pc)
+            };
+            let ibn_pc = if is_last_fn {
+                format!("{}   ", oft_pc)
+            } else {
+                format!("{}│  ", oft_pc)
+            };
+
+            match func.ordinal {
+                Some(ord) => {
+                    println!(
+                        "              {}{}",
+                        fmt_tree(&ibn_conn),
+                        fmt_dim(&format!("(ordinal 0x{:04X})", ord))
+                    );
+                }
+                None => {
+                    println!(
+                        "              {}{}",
+                        fmt_tree(&ibn_conn),
+                        fmt_section("IMAGE_IMPORT_BY_NAME"),
+                    );
+                    let hint_str = func
+                        .hint
+                        .map(|h| format!("{:#06X}", h))
+                        .unwrap_or_else(|| "(none)".to_string());
+                    let name = func.name.as_deref().unwrap_or("(unknown)");
+                    println!(
+                        "              {}{}  {}",
+                        fmt_tree(&format!("{}├─ ", ibn_pc)),
+                        fmt_field("Hint"),
+                        fmt_value(&hint_str),
+                    );
+                    println!(
+                        "              {}{}  {}",
+                        fmt_tree(&format!("{}└─ ", ibn_pc)),
+                        fmt_field("Name"),
+                        fmt_identifier(name),
+                    );
+                }
+            }
+        }
 
         // TimeDateStamp
         let tds_label = format!("{:<16}", "TimeDateStamp");
@@ -215,38 +275,9 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
         println!(
             "{}{}{}  {}",
             fmt_offset(desc.offset + 8),
-            fmt_tree(&format!("{}├─ ", dll_pc)),
+            fmt_tree(&format!("{}└─ ", dll_pc)),
             fmt_field(&fc_label),
             fc_value
         );
-
-        let m = desc.functions.len();
-        for (j, func) in desc.functions.iter().enumerate() {
-            let is_last_fn = j + 1 >= m;
-            let fn_conn = if is_last_fn {
-                format!("{}└─ ", dll_pc)
-            } else {
-                format!("{}├─ ", dll_pc)
-            };
-
-            let entry_str = match func.ordinal {
-                Some(ord) => format!("{}", fmt_dim(&format!("(ordinal 0x{:04X})", ord))),
-                None => {
-                    let hint = func
-                        .hint
-                        .map(|h| format!("{} ", fmt_dim(&format!("[0x{:04X}]", h))))
-                        .unwrap_or_default();
-                    let name = func.name.as_deref().unwrap_or("(unknown)");
-                    format!("{}{}", hint, fmt_identifier(name))
-                }
-            };
-
-            println!(
-                "{}{}{}",
-                fmt_offset(func.thunk_offset),
-                fmt_tree(&fn_conn),
-                entry_str
-            );
-        }
     }
 }

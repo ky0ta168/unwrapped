@@ -14,17 +14,17 @@ pub struct RelocationBlock {
 }
 
 const RELOC_TYPE_NAMES: &[(u8, &str)] = &[
-    (0, "ABSOLUTE"),
-    (1, "HIGH"),
-    (2, "LOW"),
-    (3, "HIGHLOW"),
-    (4, "HIGHADJ"),
-    (5, "MIPS_JMPADDR"),
-    (7, "THUMB_MOV32"),
-    (8, "RISCV_LOW12S"),
-    (9, "IA64_IMM64"),
-    (10, "DIR64"),
-    (11, "HIGH3ADJ"),
+    (0, "IMAGE_REL_BASED_ABSOLUTE"),
+    (1, "IMAGE_REL_BASED_HIGH"),
+    (2, "IMAGE_REL_BASED_LOW"),
+    (3, "IMAGE_REL_BASED_HIGHLOW"),
+    (4, "IMAGE_REL_BASED_HIGHADJ"),
+    (5, "IMAGE_REL_BASED_MIPS_JMPADDR"),
+    (7, "IMAGE_REL_BASED_THUMB_MOV32"),
+    (8, "IMAGE_REL_BASED_RISCV_LOW12S"),
+    (9, "IMAGE_REL_BASED_IA64_IMM64"),
+    (10, "IMAGE_REL_BASED_DIR64"),
+    (11, "IMAGE_REL_BASED_HIGH3ADJ"),
 ];
 
 fn reloc_type_name(t: u8) -> &'static str {
@@ -87,20 +87,26 @@ impl PeFile {
     }
 }
 
-pub fn dump_relocation_table(blocks: &[RelocationBlock], is_last: bool) {
+pub fn dump_relocation_table(blocks: &[RelocationBlock], is_last: bool, expand: bool) {
     let total_entries: usize = blocks.iter().map(|b| b.entries.len()).sum();
     let connector = if is_last { "└─ " } else { "├─ " };
     let pc = if is_last { "   " } else { "│  " };
 
+    let hint = if !expand {
+        fmt_dim("  [use -r to expand entries]").to_string()
+    } else {
+        String::new()
+    };
     println!(
-        "              {}{} {}",
+        "              {}{} {}{}",
         fmt_tree(connector),
         fmt_section("Base Relocations"),
         fmt_dim(&format!(
             "({} blocks, {} entries)",
             blocks.len(),
             total_entries
-        ))
+        )),
+        hint,
     );
 
     let n = blocks.len();
@@ -128,9 +134,9 @@ pub fn dump_relocation_table(blocks: &[RelocationBlock], is_last: bool) {
             "{}{}{} {} {}  {} {}",
             fmt_offset(block.file_offset),
             fmt_tree(&blk_conn),
-            fmt_label("VA:"),
+            fmt_label("VirtualAddress:"),
             fmt_addr(&format!("{:#010X}", block.virtual_address)),
-            fmt_dim(&format!("Size: {:#010X}", block.size_of_block)),
+            fmt_dim(&format!("SizeOfBlock: {:#010X}", block.size_of_block)),
             fmt_dim(&format!("({} entries", block.entries.len())),
             fmt_dim(&format!(
                 "{} absolute)",
@@ -141,6 +147,10 @@ pub fn dump_relocation_table(blocks: &[RelocationBlock], is_last: bool) {
                 }
             ))
         );
+
+        if !expand {
+            continue;
+        }
 
         for (j, (entry_off, entry)) in block.entries.iter().enumerate() {
             if entry.reloc_type == 0 {

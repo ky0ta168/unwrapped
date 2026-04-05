@@ -4,11 +4,36 @@ mod render;
 
 use crate::render::fmt_tree;
 use colored::Colorize;
+use pe::{
+    debug::{CodeViewInfo, DebugDirectory},
+    exports::ExportTable,
+    imports::ImportDescriptor,
+    relocations::RelocationBlock,
+};
 use std::path::Path;
+
+enum ParsedTable {
+    Export(ExportTable),
+    Import(Vec<ImportDescriptor>),
+    Reloc(Vec<RelocationBlock>),
+    Debug(Vec<DebugDirectory>, Vec<Option<CodeViewInfo>>),
+}
+
+impl ParsedTable {
+    fn file_offset(&self) -> usize {
+        match self {
+            ParsedTable::Export(e) => e.offset,
+            ParsedTable::Import(ds) => ds.first().map(|d| d.offset).unwrap_or(usize::MAX),
+            ParsedTable::Reloc(bs) => bs.first().map(|b| b.file_offset).unwrap_or(usize::MAX),
+            ParsedTable::Debug(es, _) => es.first().map(|e| e.file_offset).unwrap_or(usize::MAX),
+        }
+    }
+}
 
 fn main() {
     let args = cli::Args::parse();
     let all_flags = args.all_flags;
+    let expand_reloc = args.expand_reloc;
     let file_path = &args.file_path;
 
     let pe = match pe::PeFile::open(Path::new(file_path)) {
@@ -33,14 +58,23 @@ fn main() {
     let e_lfanew = dos.e_lfanew as usize;
 
     let (sh_base, sections) = pe.section_headers();
-    let export = pe.export_table();
-    let import = pe.import_table();
-    let reloc = pe.relocation_table();
-    let debug = pe.debug_directory(&sections);
-    let has_export = export.is_some();
-    let has_import = import.is_some();
-    let has_reloc = reloc.is_some();
-    let has_debug = debug.is_some();
+
+    let mut tables: Vec<ParsedTable> = Vec::new();
+    if let Some(exp) = pe.export_table() {
+        tables.push(ParsedTable::Export(exp));
+    }
+    if let Some(imp) = pe.import_table() {
+        tables.push(ParsedTable::Import(imp));
+    }
+    if let Some(reloc) = pe.relocation_table() {
+        tables.push(ParsedTable::Reloc(reloc));
+    }
+    if let Some((entries, cv_infos)) = pe.debug_directory(&sections) {
+        tables.push(ParsedTable::Debug(entries, cv_infos));
+    }
+    tables.sort_by_key(|t| t.file_offset());
+
+    let has_tables = !tables.is_empty();
 
     pe::dump_dos_header(&dos);
     println!("              {}", fmt_tree("│"));
@@ -59,30 +93,17 @@ fn main() {
     );
     println!("              {}", fmt_tree("│"));
 
-    pe::dump_section_headers(
-        sh_base,
-        &sections,
-        all_flags,
-        !has_export && !has_import && !has_reloc && !has_debug,
-    );
+    pe::dump_section_headers(sh_base, &sections, all_flags, !has_tables);
 
-    if let Some(exp) = export {
+    let n = tables.len();
+    for (i, table) in tables.into_iter().enumerate() {
+        let is_last = i + 1 >= n;
         println!("              {}", fmt_tree("│"));
-        pe::dump_export_table(&exp, !has_import && !has_reloc && !has_debug);
-    }
-
-    if let Some(descriptors) = import {
-        println!("              {}", fmt_tree("│"));
-        pe::dump_import_table(&descriptors, !has_reloc && !has_debug);
-    }
-
-    if let Some(blocks) = reloc {
-        println!("              {}", fmt_tree("│"));
-        pe::dump_relocation_table(&blocks, !has_debug);
-    }
-
-    if let Some((entries, cv_infos)) = debug {
-        println!("              {}", fmt_tree("│"));
-        pe::dump_debug_directory(&entries, &cv_infos, true);
+        match table {
+            ParsedTable::Export(exp) => pe::dump_export_table(&exp, is_last),
+            ParsedTable::Import(ds) => pe::dump_import_table(&ds, is_last),
+            ParsedTable::Reloc(bs) => pe::dump_relocation_table(&bs, is_last, expand_reloc),
+            ParsedTable::Debug(es, cvs) => pe::dump_debug_directory(&es, &cvs, is_last),
+        }
     }
 }

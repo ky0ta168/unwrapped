@@ -179,8 +179,7 @@ pub fn dump_debug_directory(
             .unwrap_or("UNKNOWN");
 
         println!(
-            "{}{}{}",
-            fmt_offset(entry.file_offset),
+            "              {}{}",
             fmt_tree(&ec),
             fmt_section(&format!("[{:02}] {}", i, type_name))
         );
@@ -272,7 +271,7 @@ pub fn dump_debug_directory(
             print_field(
                 Some(entry.pointer_to_raw_data as usize + 24),
                 &efl,
-                "PdbPath",
+                "PdbFileName",
                 KW,
                 fmt_identifier(&cv.pdb_path),
             );
