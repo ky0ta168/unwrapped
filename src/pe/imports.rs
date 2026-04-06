@@ -5,14 +5,17 @@ pub struct ImportFunction {
     pub hint: Option<u16>,
     pub name: Option<String>,
     pub ordinal: Option<u16>,
+    pub thunk_offset: usize, // IMAGE_THUNK_DATA のファイルオフセット（INT エントリ）
+    pub ibn_offset: usize,   // IMAGE_IMPORT_BY_NAME のファイルオフセット（ordinal は 0）
 }
 
 pub struct ImportDescriptor {
     pub offset: usize,
     pub dll_name: String,
-    pub original_first_thunk_rva: u32,
     pub time_date_stamp: u32,
     pub forwarder_chain: u32,
+    pub name_rva: u32,
+    pub first_thunk_rva: u32,
     pub functions: Vec<ImportFunction>,
 }
 
@@ -79,6 +82,8 @@ impl PeFile {
                                 hint: None,
                                 name: None,
                                 ordinal: Some((entry & 0xFFFF) as u16),
+                                thunk_offset: thunk_off,
+                                ibn_offset: 0,
                             });
                         } else if let Some(ibn_off) =
                             rva_to_file_offset((entry & 0xFFFF_FFFF) as u32, &sections)
@@ -88,6 +93,8 @@ impl PeFile {
                                 hint: Some(read_u16(d, ibn_off)),
                                 name: Some(super::read_cstring(d, ibn_off + 2)),
                                 ordinal: None,
+                                thunk_offset: thunk_off,
+                                ibn_offset: ibn_off,
                             });
                         }
                     } else {
@@ -100,6 +107,8 @@ impl PeFile {
                                 hint: None,
                                 name: None,
                                 ordinal: Some((entry & 0xFFFF) as u16),
+                                thunk_offset: thunk_off,
+                                ibn_offset: 0,
                             });
                         } else if let Some(ibn_off) = rva_to_file_offset(entry, &sections)
                             && ibn_off + 2 <= d.len()
@@ -108,6 +117,8 @@ impl PeFile {
                                 hint: Some(read_u16(d, ibn_off)),
                                 name: Some(super::read_cstring(d, ibn_off + 2)),
                                 ordinal: None,
+                                thunk_offset: thunk_off,
+                                ibn_offset: ibn_off,
                             });
                         }
                     }
@@ -118,9 +129,10 @@ impl PeFile {
             descriptors.push(ImportDescriptor {
                 offset: off,
                 dll_name,
-                original_first_thunk_rva: thunk_rva,
                 time_date_stamp,
                 forwarder_chain,
+                name_rva,
+                first_thunk_rva: first_thunk,
                 functions,
             });
             i += 1;
@@ -146,6 +158,8 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
         fmt_dim(&format!("({} DLLs)", n))
     );
 
+    const KW: usize = 20;
+
     for (i, desc) in descriptors.iter().enumerate() {
         let is_last_dll = i + 1 >= n;
         let dll_conn = if is_last_dll {
@@ -159,36 +173,42 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
             format!("{}│  ", pc)
         };
 
+        // DLL 名（オフセットなし）
         println!(
-            "              {}{} {}",
+            "              {}{}  {}",
             fmt_tree(&dll_conn),
             fmt_dll(&desc.dll_name),
-            fmt_dim(&format!("({} functions)", desc.functions.len())),
+            fmt_dim(&format!("({} imports)", desc.functions.len())),
         );
 
-        // OriginalFirstThunk → INT
-        let oft_conn = format!("{}├─ ", dll_pc);
-        let oft_pc = format!("{}│  ", dll_pc);
+        // Descriptor（DLL 唯一の子 → └─）
+        let desc_conn = format!("{}└─ ", dll_pc);
+        let desc_pc = format!("{}   ", dll_pc);
         println!(
-            "{}{}{} {} {} {}",
-            fmt_offset(desc.offset),
-            fmt_tree(&oft_conn),
-            fmt_field("OriginalFirstThunk"),
-            fmt_dim("→"),
-            fmt_label("INT:"),
-            fmt_addr(&format!("{:#010X}", desc.original_first_thunk_rva))
+            "              {}{}",
+            fmt_tree(&desc_conn),
+            fmt_section("Descriptor"),
         );
 
-        // IMAGE_IMPORT_BY_NAME entries
+        // OriginalFirstThunk（├─、値なしコンテナ、子に INT エントリを持つ）
+        println!(
+            "{}{}{}",
+            fmt_offset(desc.offset),
+            fmt_tree(&format!("{}├─ ", desc_pc)),
+            fmt_field("OriginalFirstThunk"),
+        );
+
+        // INT エントリ（OriginalFirstThunk の子、オフセットなし）
+        let oft_pc = format!("{}│  ", desc_pc);
         let m = desc.functions.len();
         for (j, func) in desc.functions.iter().enumerate() {
             let is_last_fn = j + 1 >= m;
-            let ibn_conn = if is_last_fn {
+            let fn_conn = if is_last_fn {
                 format!("{}└─ ", oft_pc)
             } else {
                 format!("{}├─ ", oft_pc)
             };
-            let ibn_pc = if is_last_fn {
+            let fn_pc = if is_last_fn {
                 format!("{}   ", oft_pc)
             } else {
                 format!("{}│  ", oft_pc)
@@ -197,32 +217,37 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
             match func.ordinal {
                 Some(ord) => {
                     println!(
-                        "              {}{}",
-                        fmt_tree(&ibn_conn),
-                        fmt_dim(&format!("(ordinal 0x{:04X})", ord))
+                        "              {}{} {}",
+                        fmt_tree(&fn_conn),
+                        fmt_dim(&format!("[{:#010X}]", func.thunk_offset)),
+                        fmt_dim(&format!("(ordinal 0x{:04X})", ord)),
                     );
                 }
                 None => {
+                    // IMAGE_THUNK_DATA → IMAGE_IMPORT_BY_NAME
                     println!(
-                        "              {}{}",
-                        fmt_tree(&ibn_conn),
-                        fmt_section_name("IMAGE_IMPORT_BY_NAME"),
+                        "              {}{} {} {}",
+                        fmt_tree(&fn_conn),
+                        fmt_dim(&format!("[{:#010X}]", func.thunk_offset)),
+                        fmt_dim("→"),
+                        fmt_addr(&format!("@{:#010X}", func.ibn_offset)),
                     );
-                    let hint_str = func
-                        .hint
-                        .map(|h| format!("{:#06X}", h))
-                        .unwrap_or_else(|| "(none)".to_string());
+                    let hint_val = func.hint.unwrap_or(0);
                     let name = func.name.as_deref().unwrap_or("(unknown)");
+                    // Hint（IBN の先頭 2 バイト）
                     println!(
-                        "              {}{}  {}",
-                        fmt_tree(&format!("{}├─ ", ibn_pc)),
-                        fmt_field("Hint"),
-                        fmt_value(&hint_str),
+                        "              {}{} {} {}",
+                        fmt_tree(&format!("{}├─ ", fn_pc)),
+                        fmt_dim(&format!("[{:#010X}]", func.ibn_offset)),
+                        fmt_label("Hint:"),
+                        fmt_value(&format!("{:#06X}", hint_val)),
                     );
+                    // Name（IBN の +2 以降）
                     println!(
-                        "              {}{}  {}",
-                        fmt_tree(&format!("{}└─ ", ibn_pc)),
-                        fmt_field("Name"),
+                        "              {}{} {} {}",
+                        fmt_tree(&format!("{}└─ ", fn_pc)),
+                        fmt_dim(&format!("[{:#010X}]", func.ibn_offset + 2)),
+                        fmt_label("Name:"),
                         fmt_func(name),
                     );
                 }
@@ -230,53 +255,56 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
         }
 
         // TimeDateStamp
-        let tds_label = format!("{:<16}", "TimeDateStamp");
         let tds_value = match desc.time_date_stamp {
-            0 => format!(
-                "{} {}",
-                fmt_value(&format!("0x{:08X}", 0u32)),
-                fmt_dim("(not bound)")
-            ),
-            0xFFFF_FFFF => format!(
-                "{} {}",
-                fmt_value(&format!("0x{:08X}", 0xFFFF_FFFFu32)),
-                fmt_dim("(bound)")
-            ),
-            v => format!("{}", fmt_value(&format!("0x{:08X}", v))),
+            0 => format!("{}  {}", fmt_value("0x00000000"), fmt_dim("(not bound)")),
+            0xFFFF_FFFF => format!("{}  {}", fmt_value("0xFFFFFFFF"), fmt_dim("(bound)")),
+            v => fmt_value(&format!("0x{:08X}", v)).to_string(),
         };
         println!(
-            "{}{}{}  {}",
+            "{}{}{}{}",
             fmt_offset(desc.offset + 4),
-            fmt_tree(&format!("{}├─ ", dll_pc)),
-            fmt_field(&tds_label),
-            tds_value
+            fmt_tree(&format!("{}├─ ", desc_pc)),
+            fmt_field(&format!("{:<KW$}", "TimeDateStamp")),
+            tds_value,
         );
 
         // ForwarderChain
-        let fc_label = format!("{:<16}", "ForwarderChain");
         let fc_value = match desc.forwarder_chain {
-            0xFFFF_FFFF => format!(
-                "{} {}",
-                fmt_value(&format!("0x{:08X}", 0xFFFF_FFFFu32)),
-                fmt_dim("(no forwarders)")
-            ),
-            0 => format!(
-                "{} {}",
-                fmt_value(&format!("0x{:08X}", 0u32)),
+            0 | 0xFFFF_FFFF => format!(
+                "{}  {}",
+                fmt_value(&format!("0x{:08X}", desc.forwarder_chain)),
                 fmt_dim("(no forwarders)")
             ),
             v => format!(
-                "{} {}",
+                "{}  {}",
                 fmt_value(&format!("0x{:08X}", v)),
                 fmt_dim("(forwarder chain)")
             ),
         };
         println!(
-            "{}{}{}  {}",
+            "{}{}{}{}",
             fmt_offset(desc.offset + 8),
-            fmt_tree(&format!("{}└─ ", dll_pc)),
-            fmt_field(&fc_label),
-            fc_value
+            fmt_tree(&format!("{}├─ ", desc_pc)),
+            fmt_field(&format!("{:<KW$}", "ForwarderChain")),
+            fc_value,
+        );
+
+        // Name
+        println!(
+            "{}{}{}{}",
+            fmt_offset(desc.offset + 12),
+            fmt_tree(&format!("{}├─ ", desc_pc)),
+            fmt_field(&format!("{:<KW$}", "Name")),
+            fmt_value(&format!("0x{:08X}", desc.name_rva)),
+        );
+
+        // FirstThunk（最後のフィールド → └─）
+        println!(
+            "{}{}{}{}",
+            fmt_offset(desc.offset + 16),
+            fmt_tree(&format!("{}└─ ", desc_pc)),
+            fmt_field(&format!("{:<KW$}", "FirstThunk")),
+            fmt_value(&format!("0x{:08X}", desc.first_thunk_rva)),
         );
     }
 }
