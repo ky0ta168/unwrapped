@@ -2,7 +2,7 @@ mod cli;
 mod pe;
 mod render;
 
-use crate::render::fmt_tree;
+use crate::render::{fmt_dim, fmt_tree, fmt_value, print_field, print_section_header};
 use colored::Colorize;
 use pe::{
     debug::{CodeViewInfo, DebugDirectory},
@@ -79,8 +79,18 @@ fn main() {
     pe::dump_dos_header(&dos);
     println!("              {}", fmt_tree("│"));
 
+    // NT Headers
+    print_section_header("├─ ", "NT Headers");
+    print_field(
+        Some(e_lfanew),
+        "│  ├─ ",
+        "Signature",
+        32,
+        format!("{} {}", fmt_value("PE"), fmt_dim("(0x00004550)")),
+    );
+
     pe::dump_coff_header(&pe.coff_header(), e_lfanew + 4, all_flags);
-    println!("              {}", fmt_tree("│"));
+    println!("              {}", fmt_tree("│  │"));
 
     let (dd_base, dirs) = pe.data_directories();
     pe::dump_optional_header(
@@ -89,7 +99,6 @@ fn main() {
         dd_base,
         &dirs,
         all_flags,
-        false,
     );
     println!("              {}", fmt_tree("│"));
 

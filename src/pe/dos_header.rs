@@ -232,6 +232,10 @@ pub fn dump_dos_header(dos: &DosHeader) {
         NL_FL,
         "e_lfanew",
         KW,
-        fmt_addr(&format!("0x{:08X}", dos.e_lfanew)),
+        format!(
+            "{} {}",
+            fmt_addr(&format!("0x{:08X}", dos.e_lfanew)),
+            fmt_dim(&format!("→ NT Headers @{:#010X}", dos.e_lfanew))
+        ),
     );
 }

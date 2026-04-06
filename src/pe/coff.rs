@@ -2,11 +2,11 @@ use super::{PeFile, read_u16, read_u32};
 use crate::render::*;
 
 const KW: usize = 32;
-const NL_F: &str = "│  ├─ ";
-const NL_FL: &str = "│  └─ ";
-const NL_FLG: &str = "│     ├─ ";
-const NL_FLGL: &str = "│     └─ ";
-const NL_FLGA: &str = "│        ";
+const NL_F: &str = "│  │  ├─ ";
+const NL_FL: &str = "│  │  └─ ";
+const NL_FLG: &str = "│  │     ├─ ";
+const NL_FLGL: &str = "│  │     └─ ";
+const NL_FLGA: &str = "│  │        ";
 
 pub struct CoffHeader {
     pub machine: u16,
@@ -68,7 +68,7 @@ pub fn dump_coff_header(coff: &CoffHeader, base: usize, all_flags: bool) {
         .map(|&(_, n)| n)
         .unwrap_or("UNKNOWN");
 
-    print_section_header("├─ ", "COFF File Header");
+    print_section_header("│  ├─ ", "COFF File Header");
 
     print_field(
         Some(base),

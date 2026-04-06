@@ -197,10 +197,10 @@ pub fn dump_optional_header(
     dd_base: usize,
     dirs: &[DataDirectory],
     all_flags: bool,
-    is_last: bool,
 ) {
-    let pc = if is_last { "   " } else { "│  " };
-    let connector = if is_last { "└─ " } else { "├─ " };
+    // Optional Header は常に NT Headers の最後の子
+    let pc = "│     ";
+    let connector = "│  └─ ";
 
     let f = format!("{}├─ ", pc);
     let flg = format!("{}│  ├─ ", pc);
