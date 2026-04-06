@@ -239,7 +239,7 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
                         "              {}{} {} {}",
                         fmt_tree(&format!("{}├─ ", fn_pc)),
                         fmt_dim(&format!("[{:#010X}]", func.ibn_offset)),
-                        fmt_label("Hint:"),
+                        fmt_field("Hint"),
                         fmt_value(&format!("{:#06X}", hint_val)),
                     );
                     // Name（IBN の +2 以降）
@@ -247,7 +247,7 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
                         "              {}{} {} {}",
                         fmt_tree(&format!("{}└─ ", fn_pc)),
                         fmt_dim(&format!("[{:#010X}]", func.ibn_offset + 2)),
-                        fmt_label("Name:"),
+                        fmt_field("Name"),
                         fmt_func(name),
                     );
                 }

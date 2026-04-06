@@ -1,0 +1,560 @@
+ _   _                                              _
+| | | |_ ____      ___ __ __ _ _ __  _ __   ___  __| |
+| | | | '_ \ \ /\ / / '__/ _` | '_ \| '_ \ / _ \/ _` |
+| |_| | | | \ V  V /| | | (_| | |_) | |_) |  __/ (_| |
+ \___/|_| |_|\_/\_/ |_|  \__,_| .__/| .__/ \___|\__,_|
+                              |_|   |_|
+
+[FILE] .\target\debug\unwrapped.exe
+              ├─ DOS Header
+[0x00000000]  │  ├─ e_magic                          0x5A4D
+[0x00000002]  │  ├─ e_cblp                           0x0090
+[0x00000004]  │  ├─ e_cp                             0x0003
+[0x00000006]  │  ├─ e_crlc                           0x0000
+[0x00000008]  │  ├─ e_cparhdr                        0x0004
+[0x0000000A]  │  ├─ e_minalloc                       0x0000
+[0x0000000C]  │  ├─ e_maxalloc                       0xFFFF
+[0x0000000E]  │  ├─ e_ss                             0x0000
+[0x00000010]  │  ├─ e_sp                             0x00B8
+[0x00000012]  │  ├─ e_csum                           0x0000
+[0x00000014]  │  ├─ e_ip                             0x0000
+[0x00000016]  │  ├─ e_cs                             0x0000
+[0x00000018]  │  ├─ e_lfarlc                         0x0040
+[0x0000001A]  │  ├─ e_ovno                           0x0000
+[0x0000001C]  │  ├─ e_res[0..3]                      0x0000 (all zero)
+[0x00000024]  │  ├─ e_oemid                          0x0000
+[0x00000026]  │  ├─ e_oeminfo                        0x0000
+[0x00000028]  │  ├─ e_res2[0..9]                     0x0000 (all zero)
+[0x0000003C]  │  └─ e_lfanew                         0x000000E8
+              │
+              ├─ COFF File Header
+[0x000000EC]  │  ├─ Machine                          IMAGE_FILE_MACHINE_AMD64 (0x8664)
+[0x000000EE]  │  ├─ NumberOfSections                 5
+[0x000000F0]  │  ├─ TimeDateStamp                    0x69D36C1F
+[0x000000F4]  │  ├─ PointerToSymbolTable             0x00000000
+[0x000000F8]  │  ├─ NumberOfSymbols                  0
+[0x000000FC]  │  ├─ SizeOfOptionalHeader             0x00F0
+[0x000000FE]  │  └─ Characteristics                  0x0022
+              │     ├─ [x] IMAGE_FILE_EXECUTABLE_IMAGE (0x00000002)
+              │     └─ [x] IMAGE_FILE_LARGE_ADDRESS_AWARE (0x00000020)
+              │        (13 flags not set)
+              │
+              ├─ Optional Header
+[0x00000100]  │  ├─ Magic                            PE32+ (0x020B)
+[0x00000102]  │  ├─ MajorLinkerVersion               14
+[0x00000103]  │  ├─ MinorLinkerVersion               44
+[0x00000104]  │  ├─ SizeOfCode                       0x00064E00
+[0x00000108]  │  ├─ SizeOfInitializedData            0x00027A00
+[0x0000010C]  │  ├─ SizeOfUninitializedData          0x00000000
+[0x00000110]  │  ├─ AddressOfEntryPoint              0x00063C50
+[0x00000114]  │  ├─ BaseOfCode                       0x00001000
+[0x00000118]  │  ├─ ImageBase                        0x0000000140000000
+[0x00000120]  │  ├─ SectionAlignment                 0x00001000
+[0x00000124]  │  ├─ FileAlignment                    0x00000200
+[0x00000128]  │  ├─ MajorOperatingSystemVersion      6
+[0x0000012A]  │  ├─ MinorOperatingSystemVersion      0
+[0x0000012C]  │  ├─ MajorImageVersion                0
+[0x0000012E]  │  ├─ MinorImageVersion                0
+[0x00000130]  │  ├─ MajorSubsystemVersion            6
+[0x00000132]  │  ├─ MinorSubsystemVersion            0
+[0x00000134]  │  ├─ Win32VersionValue                0x00000000
+[0x00000138]  │  ├─ SizeOfImage                      0x00090000
+[0x0000013C]  │  ├─ SizeOfHeaders                    0x00000400
+[0x00000140]  │  ├─ CheckSum                         0x00000000
+[0x00000144]  │  ├─ Subsystem                        IMAGE_SUBSYSTEM_WINDOWS_CUI (0x0003)
+[0x00000146]  │  ├─ DllCharacteristics               0x8160
+              │  │  ├─ [x] IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA (0x00000020)
+              │  │  ├─ [x] IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE (0x00000040)
+              │  │  ├─ [x] IMAGE_DLLCHARACTERISTICS_NX_COMPAT (0x00000100)
+              │  │  └─ [x] IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE (0x00008000)
+              │  │     (7 flags not set)
+[0x00000148]  │  ├─ SizeOfStackReserve               0x0000000000100000
+[0x00000150]  │  ├─ SizeOfStackCommit                0x0000000000001000
+[0x00000158]  │  ├─ SizeOfHeapReserve                0x0000000000100000
+[0x00000160]  │  ├─ SizeOfHeapCommit                 0x0000000000001000
+[0x00000168]  │  ├─ LoaderFlags                      0x00000000
+[0x0000016C]  │  ├─ NumberOfRvaAndSizes              16
+              │  │
+              │  └─ Data Directories (7 active, 9 empty)
+[0x00000170]  │     ├─ [00] Export Table             RVA: 0x00000000  Size: 0x00000000
+[0x00000178]  │     ├─ [01] Import Table             RVA: 0x00085BD4  Size: 0x000000DC
+[0x00000180]  │     ├─ [02] Resource Table           RVA: 0x00000000  Size: 0x00000000
+[0x00000188]  │     ├─ [03] Exception Table          RVA: 0x00088000  Size: 0x000061B0
+[0x00000190]  │     ├─ [04] Certificate Table        RVA: 0x00000000  Size: 0x00000000
+[0x00000198]  │     ├─ [05] Base Relocation Table    RVA: 0x0008F000  Size: 0x00000A88
+[0x000001A0]  │     ├─ [06] Debug                    RVA: 0x00077D60  Size: 0x00000054
+[0x000001A8]  │     ├─ [07] Architecture             RVA: 0x00000000  Size: 0x00000000
+[0x000001B0]  │     ├─ [08] Global Ptr               RVA: 0x00000000  Size: 0x00000000
+[0x000001B8]  │     ├─ [09] TLS Table                RVA: 0x00077E00  Size: 0x00000028
+[0x000001C0]  │     ├─ [10] Load Config Table        RVA: 0x00077C20  Size: 0x00000140
+[0x000001C8]  │     ├─ [11] Bound Import             RVA: 0x00000000  Size: 0x00000000
+[0x000001D0]  │     ├─ [12] IAT                      RVA: 0x00066000  Size: 0x00000320
+[0x000001D8]  │     ├─ [13] Delay Import Descriptor  RVA: 0x00000000  Size: 0x00000000
+[0x000001E0]  │     ├─ [14] CLR Runtime Header       RVA: 0x00000000  Size: 0x00000000
+[0x000001E8]  │     └─ [15] Reserved                 RVA: 0x00000000  Size: 0x00000000
+              │
+              ├─ Section Headers (5 sections)
+[0x000001F0]  │  ├─ .text
+[0x000001F8]  │  │  ├─ VirtualSize                   0x00064DD8
+[0x000001FC]  │  │  ├─ VirtualAddress                0x00001000
+[0x00000200]  │  │  ├─ SizeOfRawData                 0x00064E00
+[0x00000204]  │  │  ├─ PointerToRawData              0x00000400
+[0x00000208]  │  │  ├─ PointerToRelocations          0x00000000
+[0x0000020C]  │  │  ├─ PointerToLinenumbers          0x00000000
+[0x00000210]  │  │  ├─ NumberOfRelocations           0
+[0x00000212]  │  │  ├─ NumberOfLinenumbers           0
+[0x00000214]  │  │  └─ Characteristics               0x60000020
+              │  │     ├─ [x] IMAGE_SCN_CNT_CODE (0x00000020)
+              │  │     ├─ [x] IMAGE_SCN_MEM_EXECUTE (0x20000000)
+              │  │     └─ [x] IMAGE_SCN_MEM_READ (0x40000000)
+              │  │        (18 flags not set)
+[0x00000218]  │  ├─ .rdata
+[0x00000220]  │  │  ├─ VirtualSize                   0x000207DA
+[0x00000224]  │  │  ├─ VirtualAddress                0x00066000
+[0x00000228]  │  │  ├─ SizeOfRawData                 0x00020800
+[0x0000022C]  │  │  ├─ PointerToRawData              0x00065200
+[0x00000230]  │  │  ├─ PointerToRelocations          0x00000000
+[0x00000234]  │  │  ├─ PointerToLinenumbers          0x00000000
+[0x00000238]  │  │  ├─ NumberOfRelocations           0
+[0x0000023A]  │  │  ├─ NumberOfLinenumbers           0
+[0x0000023C]  │  │  └─ Characteristics               0x40000040
+              │  │     ├─ [x] IMAGE_SCN_CNT_INITIALIZED_DATA (0x00000040)
+              │  │     └─ [x] IMAGE_SCN_MEM_READ (0x40000000)
+              │  │        (19 flags not set)
+[0x00000240]  │  ├─ .data
+[0x00000248]  │  │  ├─ VirtualSize                   0x00000300
+[0x0000024C]  │  │  ├─ VirtualAddress                0x00087000
+[0x00000250]  │  │  ├─ SizeOfRawData                 0x00000200
+[0x00000254]  │  │  ├─ PointerToRawData              0x00085A00
+[0x00000258]  │  │  ├─ PointerToRelocations          0x00000000
+[0x0000025C]  │  │  ├─ PointerToLinenumbers          0x00000000
+[0x00000260]  │  │  ├─ NumberOfRelocations           0
+[0x00000262]  │  │  ├─ NumberOfLinenumbers           0
+[0x00000264]  │  │  └─ Characteristics               0xC0000040
+              │  │     ├─ [x] IMAGE_SCN_CNT_INITIALIZED_DATA (0x00000040)
+              │  │     ├─ [x] IMAGE_SCN_MEM_READ (0x40000000)
+              │  │     └─ [x] IMAGE_SCN_MEM_WRITE (0x80000000)
+              │  │        (18 flags not set)
+[0x00000268]  │  ├─ .pdata
+[0x00000270]  │  │  ├─ VirtualSize                   0x000061B0
+[0x00000274]  │  │  ├─ VirtualAddress                0x00088000
+[0x00000278]  │  │  ├─ SizeOfRawData                 0x00006200
+[0x0000027C]  │  │  ├─ PointerToRawData              0x00085C00
+[0x00000280]  │  │  ├─ PointerToRelocations          0x00000000
+[0x00000284]  │  │  ├─ PointerToLinenumbers          0x00000000
+[0x00000288]  │  │  ├─ NumberOfRelocations           0
+[0x0000028A]  │  │  ├─ NumberOfLinenumbers           0
+[0x0000028C]  │  │  └─ Characteristics               0x40000040
+              │  │     ├─ [x] IMAGE_SCN_CNT_INITIALIZED_DATA (0x00000040)
+              │  │     └─ [x] IMAGE_SCN_MEM_READ (0x40000000)
+              │  │        (19 flags not set)
+[0x00000290]  │  └─ .reloc
+[0x00000298]  │     ├─ VirtualSize                   0x00000A88
+[0x0000029C]  │     ├─ VirtualAddress                0x0008F000
+[0x000002A0]  │     ├─ SizeOfRawData                 0x00000C00
+[0x000002A4]  │     ├─ PointerToRawData              0x0008BE00
+[0x000002A8]  │     ├─ PointerToRelocations          0x00000000
+[0x000002AC]  │     ├─ PointerToLinenumbers          0x00000000
+[0x000002B0]  │     ├─ NumberOfRelocations           0
+[0x000002B2]  │     ├─ NumberOfLinenumbers           0
+[0x000002B4]  │     └─ Characteristics               0x42000040
+              │        ├─ [x] IMAGE_SCN_CNT_INITIALIZED_DATA (0x00000040)
+              │        ├─ [x] IMAGE_SCN_MEM_DISCARDABLE (0x02000000)
+              │        └─ [x] IMAGE_SCN_MEM_READ (0x40000000)
+              │           (18 flags not set)
+              │
+              ├─ Debug Directory (3 entries)
+              │  ├─ [00] IMAGE_DEBUG_TYPE_CODEVIEW
+[0x00076F60]  │  │  ├─ Characteristics          0x00000000
+[0x00076F64]  │  │  ├─ TimeDateStamp            0x69D36C1F
+[0x00076F68]  │  │  ├─ MajorVersion             0
+[0x00076F6A]  │  │  ├─ MinorVersion             0
+[0x00076F6C]  │  │  ├─ Type                     IMAGE_DEBUG_TYPE_CODEVIEW (0x0002)
+[0x00076F70]  │  │  ├─ SizeOfData               0x00000026
+[0x00076F74]  │  │  ├─ AddressOfRawData         0x00077EF4
+[0x00076F78]  │  │  ├─ PointerToRawData         0x000770F4
+[0x000770F4]  │  │  ├─ Signature                RSDS (52534453)
+[0x000770F8]  │  │  ├─ GUID                     {289465A3-F42E-42A4-835F-FD0637491BBA}
+[0x00077108]  │  │  ├─ Age                      1
+[0x0007710C]  │  │  └─ PdbFileName              unwrapped.pdb
+              │  ├─ [01] UNKNOWN
+[0x00076F7C]  │  │  ├─ Characteristics          0x00000000
+[0x00076F80]  │  │  ├─ TimeDateStamp            0x69D36C1F
+[0x00076F84]  │  │  ├─ MajorVersion             0
+[0x00076F86]  │  │  ├─ MinorVersion             0
+[0x00076F88]  │  │  ├─ Type                     UNKNOWN (0x000C)
+[0x00076F8C]  │  │  ├─ SizeOfData               0x00000014
+[0x00076F90]  │  │  ├─ AddressOfRawData         0x00077F1C
+[0x00076F94]  │  │  └─ PointerToRawData         0x0007711C
+              │  └─ [02] IMAGE_DEBUG_TYPE_VC_FEATURE
+[0x00076F98]  │     ├─ Characteristics          0x00000000
+[0x00076F9C]  │     ├─ TimeDateStamp            0x69D36C1F
+[0x00076FA0]  │     ├─ MajorVersion             0
+[0x00076FA2]  │     ├─ MinorVersion             0
+[0x00076FA4]  │     ├─ Type                     IMAGE_DEBUG_TYPE_VC_FEATURE (0x000D)
+[0x00076FA8]  │     ├─ SizeOfData               0x00000330
+[0x00076FAC]  │     ├─ AddressOfRawData         0x00077F30
+[0x00076FB0]  │     └─ PointerToRawData         0x00077130
+              │
+              ├─ Import Table (10 DLLs)
+              │  ├─ api-ms-win-core-synch-l1-2-0.dll  (3 imports)
+              │  │  └─ Descriptor
+[0x00084DD4]  │  │     ├─ OriginalFirstThunk
+              │  │     │  ├─ [0x00084F28] → @0x0008520E
+              │  │     │  │  ├─ [0x0008520E] Hint 0x0000
+              │  │     │  │  └─ [0x00085210] Name WaitOnAddress
+              │  │     │  ├─ [0x00084F30] → @0x0008521E
+              │  │     │  │  ├─ [0x0008521E] Hint 0x0000
+              │  │     │  │  └─ [0x00085220] Name WakeByAddressAll
+              │  │     │  └─ [0x00084F38] → @0x000851F8
+              │  │     │     ├─ [0x000851F8] Hint 0x0000
+              │  │     │     └─ [0x000851FA] Name WakeByAddressSingle
+[0x00084DD8]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084DDC]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084DE0]  │  │     ├─ Name                0x00086040
+[0x00084DE4]  │  │     └─ FirstThunk          0x00066050
+              │  ├─ bcryptprimitives.dll  (1 imports)
+              │  │  └─ Descriptor
+[0x00084DE8]  │  │     ├─ OriginalFirstThunk
+              │  │     │  └─ [0x00085030] → @0x00085232
+              │  │     │     ├─ [0x00085232] Hint 0x0000
+              │  │     │     └─ [0x00085234] Name ProcessPrng
+[0x00084DEC]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084DF0]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084DF4]  │  │     ├─ Name                0x00086062
+[0x00084DF8]  │  │     └─ FirstThunk          0x00066158
+              │  ├─ kernel32.dll  (50 imports)
+              │  │  └─ Descriptor
+[0x00084DFC]  │  │     ├─ OriginalFirstThunk
+              │  │     │  ├─ [0x00085040] → @0x00085458
+              │  │     │  │  ├─ [0x00085458] Hint 0x01D5
+              │  │     │  │  └─ [0x0008545A] Name GetEnvironmentVariableW
+              │  │     │  ├─ [0x00085048] → @0x000853E4
+              │  │     │  │  ├─ [0x000853E4] Hint 0x0010
+              │  │     │  │  └─ [0x000853E6] Name AddVectoredExceptionHandler
+              │  │     │  ├─ [0x00085050] → @0x00085344
+              │  │     │  │  ├─ [0x00085344] Hint 0x01B7
+              │  │     │  │  └─ [0x00085346] Name GetCurrentProcessId
+              │  │     │  ├─ [0x00085058] → @0x00085334
+              │  │     │  │  ├─ [0x00085334] Hint 0x0350
+              │  │     │  │  └─ [0x00085336] Name LoadLibraryA
+              │  │     │  ├─ [0x00085060] → @0x00085940
+              │  │     │  │  ├─ [0x00085940] Hint 0x0284
+              │  │     │  │  └─ [0x00085942] Name GetSystemTimeAsFileTime
+              │  │     │  ├─ [0x00085068] → @0x0008595A
+              │  │     │  │  ├─ [0x0008595A] Hint 0x02FF
+              │  │     │  │  └─ [0x0008595C] Name InitializeSListHead
+              │  │     │  ├─ [0x00085070] → @0x00085484
+              │  │     │  │  ├─ [0x00085484] Hint 0x01E3
+              │  │     │  │  └─ [0x00085486] Name GetFileInformationByHandleEx
+              │  │     │  ├─ [0x00085078] → @0x00085970
+              │  │     │  │  ├─ [0x00085970] Hint 0x0311
+              │  │     │  │  └─ [0x00085972] Name IsDebuggerPresent
+              │  │     │  ├─ [0x00085080] → @0x000854A4
+              │  │     │  │  ├─ [0x000854A4] Hint 0x0082
+              │  │     │  │  └─ [0x000854A6] Name CreateFileW
+              │  │     │  ├─ [0x00085088] → @0x000854B2
+              │  │     │  │  ├─ [0x000854B2] Hint 0x01E2
+              │  │     │  │  └─ [0x000854B4] Name GetFileInformationByHandle
+              │  │     │  ├─ [0x00085090] → @0x0008531C
+              │  │     │  │  ├─ [0x0008531C] Hint 0x04EE
+              │  │     │  │  └─ [0x0008531E] Name WaitForSingleObjectEx
+              │  │     │  ├─ [0x00085098] → @0x000854D0
+              │  │     │  │  ├─ [0x000854D0] Hint 0x01E9
+              │  │     │  │  └─ [0x000854D2] Name GetFileType
+              │  │     │  ├─ [0x000850A0] → @0x00085984
+              │  │     │  │  ├─ [0x00085984] Hint 0x04C7
+              │  │     │  │  └─ [0x00085986] Name UnhandledExceptionFilter
+              │  │     │  ├─ [0x000850A8] → @0x00085440
+              │  │     │  │  ├─ [0x00085440] Hint 0x01AE
+              │  │     │  │  └─ [0x00085442] Name GetCurrentDirectoryW
+              │  │     │  ├─ [0x000850B0] → @0x00085306
+              │  │     │  │  ├─ [0x00085306] Hint 0x0507
+              │  │     │  │  └─ [0x00085308] Name WideCharToMultiByte
+              │  │     │  ├─ [0x000850B8] → @0x000852F4
+              │  │     │  │  ├─ [0x000852F4] Hint 0x0248
+              │  │     │  │  └─ [0x000852F6] Name GetProcAddress
+              │  │     │  ├─ [0x000850C0] → @0x000859A0
+              │  │     │  │  ├─ [0x000859A0] Hint 0x049B
+              │  │     │  │  └─ [0x000859A2] Name SetUnhandledExceptionFilter
+              │  │     │  ├─ [0x000850C8] → @0x000853B6
+              │  │     │  │  ├─ [0x000853B6] Hint 0x04ED
+              │  │     │  │  └─ [0x000853B8] Name WaitForSingleObject
+              │  │     │  ├─ [0x000850D0] → @0x0008536A
+              │  │     │  │  ├─ [0x0008536A] Hint 0x03EB
+              │  │     │  │  └─ [0x0008536C] Name ReleaseMutex
+              │  │     │  ├─ [0x000850D8] → @0x000854DE
+              │  │     │  │  ├─ [0x000854DE] Hint 0x01F4
+              │  │     │  │  └─ [0x000854E0] Name GetFullPathNameW
+              │  │     │  ├─ [0x000850E0] → @0x000854F2
+              │  │     │  │  ├─ [0x000854F2] Hint 0x01BB
+              │  │     │  │  └─ [0x000854F4] Name GetCurrentThreadId
+              │  │     │  ├─ [0x000850E8] → @0x00085508
+              │  │     │  │  ├─ [0x00085508] Hint 0x0210
+              │  │     │  │  └─ [0x0008550A] Name GetModuleHandleA
+              │  │     │  ├─ [0x000850F0] → @0x0008551C
+              │  │     │  │  ├─ [0x0008551C] Hint 0x020F
+              │  │     │  │  └─ [0x0008551E] Name GetModuleFileNameW
+              │  │     │  ├─ [0x000850F8] → @0x00085532
+              │  │     │  │  ├─ [0x00085532] Hint 0x0213
+              │  │     │  │  └─ [0x00085534] Name GetModuleHandleW
+              │  │     │  ├─ [0x00085100] → @0x00085430
+              │  │     │  │  ├─ [0x00085430] Hint 0x045F
+              │  │     │  │  └─ [0x00085432] Name SetLastError
+              │  │     │  ├─ [0x00085108] → @0x00085558
+              │  │     │  │  ├─ [0x00085558] Hint 0x0112
+              │  │     │  │  └─ [0x0008555A] Name ExitProcess
+              │  │     │  ├─ [0x00085110] → @0x0008535A
+              │  │     │  │  ├─ [0x0008535A] Hint 0x008E
+              │  │     │  │  └─ [0x0008535C] Name CreateMutexA
+              │  │     │  ├─ [0x00085118] → @0x0008541C
+              │  │     │  │  ├─ [0x0008541C] Hint 0x01BA
+              │  │     │  │  └─ [0x0008541E] Name GetCurrentThread
+              │  │     │  ├─ [0x00085120] → @0x00085574
+              │  │     │  │  ├─ [0x00085574] Hint 0x02E3
+              │  │     │  │  └─ [0x00085576] Name HeapAlloc
+              │  │     │  ├─ [0x00085128] → @0x00085580
+              │  │     │  │  ├─ [0x00085580] Hint 0x037C
+              │  │     │  │  └─ [0x00085582] Name MultiByteToWideChar
+              │  │     │  ├─ [0x00085130] → @0x00085596
+              │  │     │  │  ├─ [0x00085596] Hint 0x0518
+              │  │     │  │  └─ [0x00085598] Name WriteConsoleW
+              │  │     │  ├─ [0x00085138] → @0x000855A6
+              │  │     │  │  ├─ [0x000855A6] Hint 0x019E
+              │  │     │  │  └─ [0x000855A8] Name GetConsoleOutputCP
+              │  │     │  ├─ [0x00085140] → @0x000855BC
+              │  │     │  │  ├─ [0x000855BC] Hint 0x03C4
+              │  │     │  │  └─ [0x000855BE] Name QueryPerformanceCounter
+              │  │     │  ├─ [0x00085148] → @0x000855D6
+              │  │     │  │  ├─ [0x000855D6] Hint 0x0406
+              │  │     │  │  └─ [0x000855D8] Name RtlCaptureContext
+              │  │     │  ├─ [0x00085150] → @0x000855EA
+              │  │     │  │  ├─ [0x000855EA] Hint 0x040C
+              │  │     │  │  └─ [0x000855EC] Name RtlLookupFunctionEntry
+              │  │     │  ├─ [0x00085158] → @0x00085604
+              │  │     │  │  ├─ [0x00085604] Hint 0x0412
+              │  │     │  │  └─ [0x00085606] Name RtlVirtualUnwind
+              │  │     │  ├─ [0x00085160] → @0x0008538A
+              │  │     │  │  ├─ [0x0008538A] Hint 0x044F
+              │  │     │  │  └─ [0x0008538C] Name SetFileInformationByHandle
+              │  │     │  ├─ [0x00085168] → @0x0008537A
+              │  │     │  │  ├─ [0x0008537A] Hint 0x01FB
+              │  │     │  │  └─ [0x0008537C] Name GetLastError
+              │  │     │  ├─ [0x00085170] → @0x000852E0
+              │  │     │  │  ├─ [0x000852E0] Hint 0x01B6
+              │  │     │  │  └─ [0x000852E2] Name GetCurrentProcess
+              │  │     │  ├─ [0x00085178] → @0x000852D4
+              │  │     │  │  ├─ [0x000852D4] Hint 0x053C
+              │  │     │  │  └─ [0x000852D6] Name lstrlenW
+              │  │     │  ├─ [0x00085180] → @0x000852C6
+              │  │     │  │  ├─ [0x000852C6] Hint 0x0044
+              │  │     │  │  └─ [0x000852C8] Name CloseHandle
+              │  │     │  ├─ [0x00085188] → @0x000852B8
+              │  │     │  │  ├─ [0x000852B8] Hint 0x02EA
+              │  │     │  │  └─ [0x000852BA] Name HeapReAlloc
+              │  │     │  ├─ [0x00085190] → @0x000852AC
+              │  │     │  │  ├─ [0x000852AC] Hint 0x02E7
+              │  │     │  │  └─ [0x000852AE] Name HeapFree
+              │  │     │  ├─ [0x00085198] → @0x0008529A
+              │  │     │  │  ├─ [0x0008529A] Hint 0x024F
+              │  │     │  │  └─ [0x0008529C] Name GetProcessHeap
+              │  │     │  ├─ [0x000851A0] → @0x00085288
+              │  │     │  │  ├─ [0x00085288] Hint 0x019B
+              │  │     │  │  └─ [0x0008528A] Name GetConsoleMode
+              │  │     │  ├─ [0x000851A8] → @0x00085278
+              │  │     │  │  ├─ [0x00085278] Hint 0x026D
+              │  │     │  │  └─ [0x0008527A] Name GetStdHandle
+              │  │     │  ├─ [0x000851B0] → @0x00085472
+              │  │     │  │  ├─ [0x00085472] Hint 0x017F
+              │  │     │  │  └─ [0x00085474] Name GetCommandLineW
+              │  │     │  ├─ [0x000851B8] → @0x00085546
+              │  │     │  │  ├─ [0x00085546] Hint 0x0158
+              │  │     │  │  └─ [0x00085548] Name FormatMessageW
+              │  │     │  ├─ [0x000851C0] → @0x00085402
+              │  │     │  │  ├─ [0x00085402] Hint 0x048F
+              │  │     │  │  └─ [0x00085404] Name SetThreadStackGuarantee
+              │  │     │  └─ [0x000851C8] → @0x000859BE
+              │  │     │     ├─ [0x000859BE] Hint 0x0318
+              │  │     │     └─ [0x000859C0] Name IsProcessorFeaturePresent
+[0x00084E00]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084E04]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084E08]  │  │     ├─ Name                0x00086418
+[0x00084E0C]  │  │     └─ FirstThunk          0x00066168
+              │  ├─ ntdll.dll  (3 imports)
+              │  │  └─ Descriptor
+[0x00084E10]  │  │     ├─ OriginalFirstThunk
+              │  │     │  ├─ [0x000851D8] → @0x000853CC
+              │  │     │  │  ├─ [0x000853CC] Hint 0x017E
+              │  │     │  │  └─ [0x000853CE] Name RtlNtStatusToDosError
+              │  │     │  ├─ [0x000851E0] → @0x000853A8
+              │  │     │  │  ├─ [0x000853A8] Hint 0x0079
+              │  │     │  │  └─ [0x000853AA] Name NtReadFile
+              │  │     │  └─ [0x000851E8] → @0x00085566
+              │  │     │     ├─ [0x00085566] Hint 0x00A0
+              │  │     │     └─ [0x00085568] Name NtWriteFile
+[0x00084E14]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084E18]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084E1C]  │  │     ├─ Name                0x00086426
+[0x00084E20]  │  │     └─ FirstThunk          0x00066300
+              │  ├─ VCRUNTIME140.dll  (9 imports)
+              │  │  └─ Descriptor
+[0x00084E24]  │  │     ├─ OriginalFirstThunk
+              │  │     │  ├─ [0x00084ED8] → @0x00085664
+              │  │     │  │  ├─ [0x00085664] Hint 0x003B
+              │  │     │  │  └─ [0x00085666] Name memcmp
+              │  │     │  ├─ [0x00084EE0] → @0x00085650
+              │  │     │  │  ├─ [0x00085650] Hint 0x003E
+              │  │     │  │  └─ [0x00085652] Name memset
+              │  │     │  ├─ [0x00084EE8] → @0x0008565A
+              │  │     │  │  ├─ [0x0008565A] Hint 0x003D
+              │  │     │  │  └─ [0x0008565C] Name memmove
+              │  │     │  ├─ [0x00084EF0] → @0x0008566E
+              │  │     │  │  ├─ [0x0008566E] Hint 0x0001
+              │  │     │  │  └─ [0x00085670] Name _CxxThrowException
+              │  │     │  ├─ [0x00084EF8] → @0x00085630
+              │  │     │  │  ├─ [0x00085630] Hint 0x000E
+              │  │     │  │  └─ [0x00085632] Name __CxxFrameHandler3
+              │  │     │  ├─ [0x00084F00] → @0x000856B2
+              │  │     │  │  ├─ [0x000856B2] Hint 0x001C
+              │  │     │  │  └─ [0x000856B4] Name __current_exception_context
+              │  │     │  ├─ [0x00084F08] → @0x0008569C
+              │  │     │  │  ├─ [0x0008569C] Hint 0x001B
+              │  │     │  │  └─ [0x0008569E] Name __current_exception
+              │  │     │  ├─ [0x00084F10] → @0x00085684
+              │  │     │  │  ├─ [0x00085684] Hint 0x0008
+              │  │     │  │  └─ [0x00085686] Name __C_specific_handler
+              │  │     │  └─ [0x00084F18] → @0x00085646
+              │  │     │     ├─ [0x00085646] Hint 0x003C
+              │  │     │     └─ [0x00085648] Name memcpy
+[0x00084E28]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084E2C]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084E30]  │  │     ├─ Name                0x000864D0
+[0x00084E34]  │  │     └─ FirstThunk          0x00066000
+              │  ├─ api-ms-win-crt-runtime-l1-1-0.dll  (18 imports)
+              │  │  └─ Descriptor
+[0x00084E38]  │  │     ├─ OriginalFirstThunk
+              │  │     │  ├─ [0x00084F80] → @0x000856E2
+              │  │     │  │  ├─ [0x000856E2] Hint 0x0040
+              │  │     │  │  └─ [0x000856E4] Name _seh_filter_exe
+              │  │     │  ├─ [0x00084F88] → @0x00085718
+              │  │     │  │  ├─ [0x00085718] Hint 0x0018
+              │  │     │  │  └─ [0x0008571A] Name _configure_narrow_argv
+              │  │     │  ├─ [0x00084F90] → @0x00085732
+              │  │     │  │  ├─ [0x00085732] Hint 0x0033
+              │  │     │  │  └─ [0x00085734] Name _initialize_narrow_environment
+              │  │     │  ├─ [0x00084F98] → @0x00085754
+              │  │     │  │  ├─ [0x00085754] Hint 0x0028
+              │  │     │  │  └─ [0x00085756] Name _get_initial_narrow_environment
+              │  │     │  ├─ [0x00084FA0] → @0x00085776
+              │  │     │  │  ├─ [0x00085776] Hint 0x0036
+              │  │     │  │  └─ [0x00085778] Name _initterm
+              │  │     │  ├─ [0x00084FA8] → @0x00085782
+              │  │     │  │  ├─ [0x00085782] Hint 0x0037
+              │  │     │  │  └─ [0x00085784] Name _initterm_e
+              │  │     │  ├─ [0x00084FB0] → @0x00085790
+              │  │     │  │  ├─ [0x00085790] Hint 0x0055
+              │  │     │  │  └─ [0x00085792] Name exit
+              │  │     │  ├─ [0x00084FB8] → @0x00085798
+              │  │     │  │  ├─ [0x00085798] Hint 0x0023
+              │  │     │  │  └─ [0x0008579A] Name _exit
+              │  │     │  ├─ [0x00084FC0] → @0x000857AE
+              │  │     │  │  ├─ [0x000857AE] Hint 0x0004
+              │  │     │  │  └─ [0x000857B0] Name __p___argc
+              │  │     │  ├─ [0x00084FC8] → @0x000857BC
+              │  │     │  │  ├─ [0x000857BC] Hint 0x0005
+              │  │     │  │  └─ [0x000857BE] Name __p___argv
+              │  │     │  ├─ [0x00084FD0] → @0x000857D4
+              │  │     │  │  ├─ [0x000857D4] Hint 0x0015
+              │  │     │  │  └─ [0x000857D6] Name _c_exit
+              │  │     │  ├─ [0x00084FD8] → @0x000857DE
+              │  │     │  │  ├─ [0x000857DE] Hint 0x003D
+              │  │     │  │  └─ [0x000857E0] Name _register_thread_local_exe_atexit_callback
+              │  │     │  ├─ [0x00084FE0] → @0x00085842
+              │  │     │  │  ├─ [0x00085842] Hint 0x0034
+              │  │     │  │  └─ [0x00085844] Name _initialize_onexit_table
+              │  │     │  ├─ [0x00084FE8] → @0x0008585E
+              │  │     │  │  ├─ [0x0008585E] Hint 0x003C
+              │  │     │  │  └─ [0x00085860] Name _register_onexit_function
+              │  │     │  ├─ [0x00084FF0] → @0x0008587A
+              │  │     │  │  ├─ [0x0008587A] Hint 0x001E
+              │  │     │  │  └─ [0x0008587C] Name _crt_atexit
+              │  │     │  ├─ [0x00084FF8] → @0x00085888
+              │  │     │  │  ├─ [0x00085888] Hint 0x0067
+              │  │     │  │  └─ [0x0008588A] Name terminate
+              │  │     │  ├─ [0x00085000] → @0x000857CA
+              │  │     │  │  ├─ [0x000857CA] Hint 0x0016
+              │  │     │  │  └─ [0x000857CC] Name _cexit
+              │  │     │  └─ [0x00085008] → @0x000856F4
+              │  │     │     ├─ [0x000856F4] Hint 0x0042
+              │  │     │     └─ [0x000856F6] Name _set_app_type
+[0x00084E3C]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084E40]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084E44]  │  │     ├─ Name                0x0008669C
+[0x00084E48]  │  │     └─ FirstThunk          0x000660A8
+              │  ├─ api-ms-win-crt-math-l1-1-0.dll  (1 imports)
+              │  │  └─ Descriptor
+[0x00084E4C]  │  │     ├─ OriginalFirstThunk
+              │  │     │  └─ [0x00084F70] → @0x00085704
+              │  │     │     ├─ [0x00085704] Hint 0x0009
+              │  │     │     └─ [0x00085706] Name __setusermatherr
+[0x00084E50]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084E54]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084E58]  │  │     ├─ Name                0x000866BE
+[0x00084E5C]  │  │     └─ FirstThunk          0x00066098
+              │  ├─ api-ms-win-crt-stdio-l1-1-0.dll  (2 imports)
+              │  │  └─ Descriptor
+[0x00084E60]  │  │     ├─ OriginalFirstThunk
+              │  │     │  ├─ [0x00085018] → @0x00085832
+              │  │     │  │  ├─ [0x00085832] Hint 0x0001
+              │  │     │  │  └─ [0x00085834] Name __p__commode
+              │  │     │  └─ [0x00085020] → @0x000857A0
+              │  │     │     ├─ [0x000857A0] Hint 0x0054
+              │  │     │     └─ [0x000857A2] Name _set_fmode
+[0x00084E64]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084E68]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084E6C]  │  │     ├─ Name                0x000866DE
+[0x00084E70]  │  │     └─ FirstThunk          0x00066140
+              │  ├─ api-ms-win-crt-locale-l1-1-0.dll  (1 imports)
+              │  │  └─ Descriptor
+[0x00084E74]  │  │     ├─ OriginalFirstThunk
+              │  │     │  └─ [0x00084F60] → @0x0008580C
+              │  │     │     ├─ [0x0008580C] Hint 0x0008
+              │  │     │     └─ [0x0008580E] Name _configthreadlocale
+[0x00084E78]  │  │     ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084E7C]  │  │     ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084E80]  │  │     ├─ Name                0x000866FE
+[0x00084E84]  │  │     └─ FirstThunk          0x00066088
+              │  └─ api-ms-win-crt-heap-l1-1-0.dll  (2 imports)
+              │     └─ Descriptor
+[0x00084E88]  │        ├─ OriginalFirstThunk
+              │        │  ├─ [0x00084F48] → @0x00085822
+              │        │  │  ├─ [0x00085822] Hint 0x0016
+              │        │  │  └─ [0x00085824] Name _set_new_mode
+              │        │  └─ [0x00084F50] → @0x00085894
+              │        │     ├─ [0x00085894] Hint 0x0018
+              │        │     └─ [0x00085896] Name free
+[0x00084E8C]  │        ├─ TimeDateStamp       0x00000000  (not bound)
+[0x00084E90]  │        ├─ ForwarderChain      0x00000000  (no forwarders)
+[0x00084E94]  │        ├─ Name                0x00086720
+[0x00084E98]  │        └─ FirstThunk          0x00066070
+              │
+              └─ Base Relocations (19 blocks, 1272 entries)  [use -r to expand entries]
+[0x0008BE00]     ├─ VirtualAddress: 0x00066000 SizeOfBlock: 0x00000064  (46 entries  absolute)
+[0x0008BE64]     ├─ VirtualAddress: 0x00067000 SizeOfBlock: 0x000000DC  (106 entries  absolute)
+[0x0008BF40]     ├─ VirtualAddress: 0x00068000 SizeOfBlock: 0x00000098  (72 entries 1  absolute)
+[0x0008BFD8]     ├─ VirtualAddress: 0x00069000 SizeOfBlock: 0x00000090  (68 entries  absolute)
+[0x0008C068]     ├─ VirtualAddress: 0x0006A000 SizeOfBlock: 0x00000090  (68 entries 1  absolute)
+[0x0008C0F8]     ├─ VirtualAddress: 0x0006B000 SizeOfBlock: 0x00000090  (68 entries 1  absolute)
+[0x0008C188]     ├─ VirtualAddress: 0x0006C000 SizeOfBlock: 0x00000070  (52 entries  absolute)
+[0x0008C1F8]     ├─ VirtualAddress: 0x0006D000 SizeOfBlock: 0x0000012C  (146 entries 1  absolute)
+[0x0008C324]     ├─ VirtualAddress: 0x0006E000 SizeOfBlock: 0x000000A4  (78 entries  absolute)
+[0x0008C3C8]     ├─ VirtualAddress: 0x0006F000 SizeOfBlock: 0x00000034  (22 entries  absolute)
+[0x0008C3FC]     ├─ VirtualAddress: 0x00070000 SizeOfBlock: 0x000000A0  (76 entries 1  absolute)
+[0x0008C49C]     ├─ VirtualAddress: 0x00071000 SizeOfBlock: 0x00000038  (24 entries  absolute)
+[0x0008C4D4]     ├─ VirtualAddress: 0x00072000 SizeOfBlock: 0x0000007C  (58 entries 1  absolute)
+[0x0008C550]     ├─ VirtualAddress: 0x00073000 SizeOfBlock: 0x00000084  (62 entries  absolute)
+[0x0008C5D4]     ├─ VirtualAddress: 0x00074000 SizeOfBlock: 0x00000128  (144 entries 1  absolute)
+[0x0008C6FC]     ├─ VirtualAddress: 0x00075000 SizeOfBlock: 0x000000AC  (82 entries 1  absolute)
+[0x0008C7A8]     ├─ VirtualAddress: 0x00076000 SizeOfBlock: 0x00000074  (54 entries 1  absolute)
+[0x0008C81C]     ├─ VirtualAddress: 0x00077000 SizeOfBlock: 0x00000058  (40 entries 1  absolute)
+[0x0008C874]     └─ VirtualAddress: 0x00087000 SizeOfBlock: 0x00000014  (6 entries 1  absolute)
