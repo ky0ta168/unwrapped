@@ -1,6 +1,8 @@
 use super::{PeFile, read_u16, read_u32};
 use crate::render::*;
 
+const KW: usize = 29;
+
 pub struct SectionHeader {
     pub name: String,
     pub virtual_size: u32,
@@ -125,63 +127,63 @@ pub fn dump_section_headers(
             Some(sec_base + 8),
             &f_pfx,
             "VirtualSize",
-            32 - 3,
+            KW,
             fmt_value(&format!("{:#010X}", sec.virtual_size)),
         );
         print_field(
             Some(sec_base + 12),
             &f_pfx,
             "VirtualAddress",
-            32 - 3,
+            KW,
             fmt_addr(&format!("{:#010X}", sec.virtual_address)),
         );
         print_field(
             Some(sec_base + 16),
             &f_pfx,
             "SizeOfRawData",
-            32 - 3,
+            KW,
             fmt_value(&format!("{:#010X}", sec.size_of_raw_data)),
         );
         print_field(
             Some(sec_base + 20),
             &f_pfx,
             "PointerToRawData",
-            32 - 3,
+            KW,
             fmt_addr(&format!("{:#010X}", sec.pointer_to_raw_data)),
         );
         print_field(
             Some(sec_base + 24),
             &f_pfx,
             "PointerToRelocations",
-            32 - 3,
+            KW,
             fmt_addr(&format!("{:#010X}", sec.pointer_to_relocations)),
         );
         print_field(
             Some(sec_base + 28),
             &f_pfx,
             "PointerToLinenumbers",
-            32 - 3,
+            KW,
             fmt_addr(&format!("{:#010X}", sec.pointer_to_linenumbers)),
         );
         print_field(
             Some(sec_base + 32),
             &f_pfx,
             "NumberOfRelocations",
-            32 - 3,
+            KW,
             fmt_num(&format!("{}", sec.number_of_relocations)),
         );
         print_field(
             Some(sec_base + 34),
             &f_pfx,
             "NumberOfLinenumbers",
-            32 - 3,
+            KW,
             fmt_num(&format!("{}", sec.number_of_linenumbers)),
         );
         print_field(
             Some(sec_base + 36),
             &fl_pfx,
             "Characteristics",
-            32 - 3,
+            KW,
             fmt_value(&format!("{:#010X}", sec.characteristics)),
         );
         print_flags(

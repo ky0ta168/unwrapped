@@ -158,7 +158,7 @@ pub fn dump_import_table(descriptors: &[ImportDescriptor], is_last: bool) {
         fmt_dim(&format!("({} DLLs)", n))
     );
 
-    const KW: usize = 20;
+    const KW: usize = 26;
 
     for (i, desc) in descriptors.iter().enumerate() {
         let is_last_dll = i + 1 >= n;

@@ -78,7 +78,11 @@ pub fn dump_dos_header(dos: &DosHeader) {
         NL_F,
         "e_magic",
         KW,
-        fmt_value(&format!("0x{:04X}", dos.e_magic)),
+        format!(
+            "{} {}",
+            fmt_identifier("MZ"),
+            fmt_dim(&format!("(0x{:04X})", dos.e_magic))
+        ),
     );
     print_field(
         Some(0x02),

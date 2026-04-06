@@ -1,7 +1,7 @@
 use super::{PeFile, read_u16, read_u32, read_u64};
 use crate::render::*;
 
-const KW: usize = 32;
+const KW: usize = 29;
 
 pub struct OptionalHeader {
     pub magic: u16,

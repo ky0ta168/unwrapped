@@ -1,7 +1,7 @@
 use super::{PeFile, SectionHeader, read_u16, read_u32};
 use crate::render::*;
 
-const KW: usize = 24;
+const KW: usize = 29;
 
 pub struct DebugDirectory {
     pub file_offset: usize,

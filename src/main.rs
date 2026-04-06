@@ -2,7 +2,7 @@ mod cli;
 mod pe;
 mod render;
 
-use crate::render::{fmt_dim, fmt_tree, fmt_value, print_field, print_section_header};
+use crate::render::{fmt_dim, fmt_identifier, fmt_tree, print_field, print_section_header};
 use colored::Colorize;
 use pe::{
     debug::{CodeViewInfo, DebugDirectory},
@@ -86,7 +86,7 @@ fn main() {
         "│  ├─ ",
         "Signature",
         32,
-        format!("{} {}", fmt_value("PE"), fmt_dim("(0x00004550)")),
+        format!("{} {}", fmt_identifier("PE"), fmt_dim("(0x00004550)")),
     );
 
     pe::dump_coff_header(&pe.coff_header(), e_lfanew + 4, all_flags);

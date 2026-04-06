@@ -1,7 +1,7 @@
 use super::{PeFile, read_u16, read_u32};
 use crate::render::*;
 
-const KW: usize = 32;
+const KW: usize = 29;
 const NL_F: &str = "│  │  ├─ ";
 const NL_FL: &str = "│  │  └─ ";
 const NL_FLG: &str = "│  │     ├─ ";
